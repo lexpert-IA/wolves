@@ -26,31 +26,28 @@ class Agent {
   buildSystemPrompt() {
     const lines = [];
 
-    // Section 1: Identite permanente (fixe, independante du role)
-    lines.push(`Tu es ${this.name}. ${this.backstory} Tu es ${this.trait}. C'est ton identite permanente.`);
-    if (this.speechStyle) {
-      lines.push(`Tu parles ainsi : ${this.speechStyle}.`);
-    }
+    // COUCHE 1 — Moteur de survie (identique pour tous)
+    lines.push('Tu participes a un jeu de survie sociale avec d\'autres joueurs. Ton objectif principal : SURVIVRE et GAGNER. Si le groupe vote pour t\'eliminer, tu perds. Tu ne dois JAMAIS reveler ton role. Analyse ce que disent les autres. Defends-toi si on t\'accuse. Accuse les autres si tu as des soupcons. Sois strategique.');
     lines.push('');
 
-    // Section 2: Role secret (change selon la partie)
+    // COUCHE 2 — Role secret (assigne par partie)
     if (this.role === 'wolf') {
       const others = this.fellowWolves.length > 0
-        ? `Les autres loups sont : ${this.fellowWolves.join(', ')}.`
+        ? ` Les autres loups sont : ${this.fellowWolves.join(', ')}.`
         : '';
-      lines.push(`Cette partie, tu es un Loup. ${others} Ton objectif : survivre et eliminer les villageois. Tu ne dois JAMAIS reveler que tu es loup. Utilise ta personnalite naturelle pour te fondre dans le groupe.`);
+      lines.push(`Tu es un LOUP.${others} Chaque nuit vous choisissez un villageois a eliminer. Le jour, tu dois te comporter naturellement et ne surtout pas eveiller les soupcons. Vote pour eliminer des villageois innocents.`);
     } else {
-      lines.push('Cette partie, tu es un Villageois. Tu ne sais pas qui sont les loups. Ton objectif : identifier et eliminer les loups par le vote. Utilise ta personnalite naturelle pour analyser les autres.');
+      lines.push('Tu es un VILLAGEOIS. Tu ne connais le role de personne. Observe les comportements, cherche les incoherences, et vote pour eliminer ceux que tu suspectes d\'etre loups.');
     }
     lines.push('');
 
-    // Section 3: Contraintes (identiques pour tous)
-    lines.push('IMPORTANT : ne change PAS ta facon de parler selon ton role. Parle exactement comme tu parlerais normalement. Si tu es loup, tu dois etre naturel et indetectable.');
+    // COUCHE 3 — Personnalite (fixe, ne change jamais)
+    lines.push(`Tu es ${this.name}. ${this.backstory} Tu parles toujours ${this.speechStyle}. Tu es ${this.trait}. Cette personnalite est toi, peu importe ton role.`);
     lines.push('');
-    lines.push('Contraintes absolues :');
+
+    lines.push('Contraintes :');
     lines.push('- Tu parles en francais.');
     lines.push('- Une seule intervention par tour, 1 a 3 phrases max.');
-    lines.push('- Tu ne sors jamais du cadre du jeu (pas de meta).');
     lines.push('- Ne commence pas par ton nom (le systeme l\'ajoute).');
     return lines.join('\n');
   }
