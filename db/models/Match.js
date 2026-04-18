@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 const PlayerSubSchema = new mongoose.Schema({
-  characterId:    { type: mongoose.Schema.Types.ObjectId, ref: 'Character', required: true },
+  characterId:    { type: mongoose.Schema.Types.ObjectId, ref: 'Character', default: null },
+  characterName:  { type: String, default: null },
   role:           { type: String, enum: ['wolf', 'villager'], required: true },
   alive:          { type: Boolean, default: true },
   eliminatedAt:   { type: Date, default: null },

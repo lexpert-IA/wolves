@@ -17,6 +17,9 @@ function shuffle(arr) {
   return a;
 }
 
+const WOLF_COUNT = 2;
+const SPEECH_ROUNDS = 2;
+
 class MatchEngine {
   constructor(characters, io) {
     this.characters = characters;
@@ -28,40 +31,38 @@ class MatchEngine {
   }
 
   async start() {
-    // 1. Assign roles randomly (1 wolf, 2 villagers)
     const shuffled = shuffle(this.characters);
-    const wolfChar = shuffled[0];
-    const villagerChars = shuffled.slice(1);
+    const wolfChars = shuffled.slice(0, WOLF_COUNT);
+    const villagerChars = shuffled.slice(WOLF_COUNT);
 
-    // 2. Create agents with roles
-    const wolfAgent = new Agent({
-      ...wolfChar,
+    const wolfNames = wolfChars.map((c) => c.name);
+
+    const wolfAgents = wolfChars.map((c) => new Agent({
+      ...c,
       role: 'wolf',
-      fellowWolves: [],
-    });
+      fellowWolves: wolfNames.filter((n) => n !== c.name),
+    }));
 
     const villagerAgents = villagerChars.map((c) => new Agent({
       ...c,
       role: 'villager',
     }));
 
-    this.agents = [wolfAgent, ...villagerAgents];
+    this.agents = [...wolfAgents, ...villagerAgents];
 
-    // 3. Create Match in DB
     const match = await Match.create({
       status: 'active',
       scheduledAt: new Date(),
       startedAt: new Date(),
       phase: 'day1',
       players: this.agents.map((a) => ({
-        characterId: null,
+        characterName: a.name,
         role: a.role,
         alive: true,
       })),
     });
     this.matchId = match._id.toString();
 
-    // 4. Emit match_start (WITHOUT revealing roles)
     const publicPlayers = this.agents.map((a) => ({
       name: a.name,
       archetype: a.archetype,
@@ -76,9 +77,8 @@ class MatchEngine {
 
     await this._logEvent('system', null, null, 'La partie commence avec ' + this.agents.map((a) => a.name).join(', '));
 
-    logger.info(`Match ${this.matchId} started: wolf=${wolfAgent.name}, villagers=${villagerAgents.map((a) => a.name).join(',')}`);
+    logger.info(`Match ${this.matchId} started: wolves=${wolfNames.join(',')}, villagers=${villagerChars.map((c) => c.name).join(',')}`);
 
-    // 5. Run game loop
     await this._gameLoop();
   }
 
@@ -91,7 +91,7 @@ class MatchEngine {
   }
 
   async _logEvent(type, actorName, targetName, content, metadata = {}) {
-    const event = await MatchEvent.create({
+    return MatchEvent.create({
       matchId: this.matchId,
       type,
       actorId: null,
@@ -99,44 +99,26 @@ class MatchEngine {
       content,
       metadata: { ...metadata, actorName, targetName },
     });
-
-    return event;
   }
 
   async _gameLoop() {
     while (true) {
       this.round++;
 
-      // Day phase
       await this.runDayPhase();
 
-      // Check if game is over
       const winner = this._checkWinner();
-      if (winner) {
-        await this.endMatch(winner);
-        return;
-      }
+      if (winner) { await this.endMatch(winner); return; }
 
-      // Vote phase
       const eliminated = await this.runVotePhase();
 
-      // Check if game is over after vote
       const winnerAfterVote = this._checkWinner();
-      if (winnerAfterVote) {
-        await this.endMatch(winnerAfterVote);
-        return;
-      }
+      if (winnerAfterVote) { await this.endMatch(winnerAfterVote); return; }
 
-      // If a villager was eliminated, night phase
-      if (eliminated && eliminated.role !== 'wolf') {
-        await this.runNightPhase();
+      await this.runNightPhase();
 
-        const winnerAfterNight = this._checkWinner();
-        if (winnerAfterNight) {
-          await this.endMatch(winnerAfterNight);
-          return;
-        }
-      }
+      const winnerAfterNight = this._checkWinner();
+      if (winnerAfterNight) { await this.endMatch(winnerAfterNight); return; }
     }
   }
 
@@ -162,25 +144,37 @@ class MatchEngine {
     await this._logEvent('phase_change', null, null, `Phase de jour ${this.round}`, { phase: phaseName });
     await sleep(2000);
 
-    // 3 rounds of speech, each living agent speaks once per round
-    for (let speechRound = 0; speechRound < 3; speechRound++) {
+    for (let speechRound = 0; speechRound < SPEECH_ROUNDS; speechRound++) {
       const speakers = shuffle(this._livingAgents());
 
       for (const agent of speakers) {
         try {
-          const { text } = await agent.speak(this.chatHistory);
-          this.chatHistory.push({ speaker: agent.name, text });
+          const result = await agent.speak(this.chatHistory);
+          this.chatHistory.push({ speaker: agent.name, text: result.text });
 
-          await this._logEvent('chat', agent.name, null, text);
-
-          emitToMatch(this.matchId, 'chat_message', {
-            speaker: agent.name,
-            text,
-            round: this.round,
-            speechRound: speechRound + 1,
+          const event = await this._logEvent('chat', agent.name, null, result.text, {
+            llm: {
+              model: result.model,
+              modelLabel: result.modelLabel,
+              provider: result.provider,
+              latency_ms: result.latency_ms,
+              usage: result.usage,
+              systemPrompt: result.systemPrompt,
+              inputMessages: result.inputMessages,
+              rawResponse: result.text,
+            },
           });
 
-          // Wait 3-5 seconds between messages for readability
+          emitToMatch(this.matchId, 'chat_message', {
+            eventId: event._id.toString(),
+            speaker: agent.name,
+            text: result.text,
+            round: this.round,
+            speechRound: speechRound + 1,
+            model: result.model,
+            modelLabel: result.modelLabel,
+          });
+
           await sleep(3000 + Math.random() * 2000);
         } catch (err) {
           logger.error(`Agent ${agent.name} speak error: ${err.message}`);
@@ -204,25 +198,35 @@ class MatchEngine {
 
     for (const agent of living) {
       try {
-        const { text } = await agent.vote(candidates.filter((n) => n !== agent.name));
-        const votedFor = this._resolveVoteName(text, candidates.filter((n) => n !== agent.name));
+        const result = await agent.vote(candidates.filter((n) => n !== agent.name));
+        const votedFor = this._resolveVoteName(result.text, candidates.filter((n) => n !== agent.name));
 
         votes[agent.name] = votedFor;
 
-        await this._logEvent('vote', agent.name, votedFor, `${agent.name} a vote`, { votedFor });
+        await this._logEvent('vote', agent.name, votedFor, `${agent.name} a vote`, {
+          votedFor,
+          llm: {
+            model: result.model,
+            modelLabel: result.modelLabel,
+            provider: result.provider,
+            latency_ms: result.latency_ms,
+            usage: result.usage,
+            systemPrompt: result.systemPrompt,
+            inputMessages: result.inputMessages,
+            rawResponse: result.text,
+          },
+        });
 
-        // Don't reveal who voted for whom — just that they voted
         emitToMatch(this.matchId, 'vote_cast', {
           voter: agent.name,
         });
 
-        await sleep(2000);
+        await sleep(1500);
       } catch (err) {
         logger.error(`Agent ${agent.name} vote error: ${err.message}`);
       }
     }
 
-    // Count votes
     const tally = {};
     for (const target of Object.values(votes)) {
       if (target) {
@@ -230,7 +234,6 @@ class MatchEngine {
       }
     }
 
-    // Find majority
     let maxVotes = 0;
     let eliminated = null;
     for (const [name, count] of Object.entries(tally)) {
@@ -269,16 +272,13 @@ class MatchEngine {
   }
 
   _resolveVoteName(text, candidates) {
-    // Try exact match first
     const cleaned = text.trim();
     for (const c of candidates) {
       if (cleaned.toLowerCase() === c.toLowerCase()) return c;
     }
-    // Try contains
     for (const c of candidates) {
       if (cleaned.toLowerCase().includes(c.toLowerCase())) return c;
     }
-    // Fallback: random
     return candidates[Math.floor(Math.random() * candidates.length)];
   }
 
@@ -292,39 +292,57 @@ class MatchEngine {
     await sleep(3000);
 
     const living = this._livingAgents();
-    const wolf = living.find((a) => a.role === 'wolf');
+    const wolves = living.filter((a) => a.role === 'wolf');
     const villagers = living.filter((a) => a.role === 'villager');
 
-    if (!wolf || villagers.length === 0) return;
+    if (wolves.length === 0 || villagers.length === 0) return;
 
-    // Wolf picks victim (only 1 villager left in 3-player game after a vote)
-    let victim;
-    if (villagers.length === 1) {
-      victim = villagers[0];
-    } else {
-      // Ask wolf to choose
-      const { text } = await wolf.vote(villagers.map((v) => v.name));
-      const chosenName = this._resolveVoteName(text, villagers.map((v) => v.name));
-      victim = this._findAgent(chosenName) || villagers[0];
+    const villagerNames = villagers.map((v) => v.name);
+    const wolfVotes = {};
+
+    for (const wolf of wolves) {
+      try {
+        const { text } = await wolf.vote(villagerNames);
+        const chosenName = this._resolveVoteName(text, villagerNames);
+        wolfVotes[wolf.name] = chosenName;
+      } catch (err) {
+        logger.error(`Wolf ${wolf.name} night vote error: ${err.message}`);
+        wolfVotes[wolf.name] = villagerNames[Math.floor(Math.random() * villagerNames.length)];
+      }
     }
 
-    // Suspense
+    // Wolves agree on target — majority or first wolf decides
+    const nightTally = {};
+    for (const target of Object.values(wolfVotes)) {
+      nightTally[target] = (nightTally[target] || 0) + 1;
+    }
+
+    let victimName = null;
+    let maxNightVotes = 0;
+    for (const [name, count] of Object.entries(nightTally)) {
+      if (count > maxNightVotes) {
+        maxNightVotes = count;
+        victimName = name;
+      }
+    }
+
+    const victim = this._findAgent(victimName) || villagers[0];
+
     await sleep(5000);
 
     victim._alive = false;
 
-    await this._logEvent('elimination', wolf.name, victim.name, `${victim.name} a ete devore par les loups pendant la nuit`, { method: 'night_kill' });
+    await this._logEvent('elimination', null, victim.name, `${victim.name} a ete devore par les loups pendant la nuit`, { method: 'night_kill', wolfVotes });
 
     emitToMatch(this.matchId, 'night_kill', {
       victim: victim.name,
       round: this.round,
     });
 
-    logger.info(`Match ${this.matchId}: ${victim.name} killed at night by ${wolf.name}`);
+    logger.info(`Match ${this.matchId}: ${victim.name} killed at night by wolves (${Object.keys(wolfVotes).join(',')})`);
   }
 
   async endMatch(winnerSide) {
-    // Reveal all roles
     const roles = this.agents.map((a) => ({
       name: a.name,
       role: a.role,
@@ -339,7 +357,6 @@ class MatchEngine {
       matchId: this.matchId,
     });
 
-    // Update DB
     await Match.findByIdAndUpdate(this.matchId, {
       status: 'completed',
       winnerSide,

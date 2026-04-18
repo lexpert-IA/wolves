@@ -14,13 +14,8 @@ class Agent {
     this.trait = config.trait || '';
     this.backstory = config.backstory;
     this.speechStyle = config.speechStyle || '';
-    this.llmModel = config.llmModel || 'haiku';
+    this.llmModel = config.llmModel || 'claude-haiku-4-5';
     this.fellowWolves = config.fellowWolves || [];
-  }
-
-  _resolveModel() {
-    const map = { haiku: 'claude-haiku-4-5', flash: 'claude-haiku-4-5', llama: 'claude-haiku-4-5' };
-    return map[this.llmModel] || 'claude-haiku-4-5';
   }
 
   buildSystemPrompt() {
@@ -66,25 +61,34 @@ class Agent {
   }
 
   async speak(history) {
-    return chat({
-      model: this._resolveModel(),
-      system: this.buildSystemPrompt(),
-      messages: this.buildMessages(history),
+    const systemPrompt = this.buildSystemPrompt();
+    const msgs = this.buildMessages(history);
+    const result = await chat({
+      model: this.llmModel,
+      system: systemPrompt,
+      messages: msgs,
       maxTokens: 160,
     });
+    result.systemPrompt = systemPrompt;
+    result.inputMessages = msgs;
+    return result;
   }
 
   async vote(candidates) {
     const candidateList = candidates.map((c) => `- ${c}`).join('\n');
+    const systemPrompt = this.buildSystemPrompt();
+    const msgs = [{
+      role: 'user',
+      content: `C'est le moment du vote. Tu dois eliminer un joueur parmi :\n${candidateList}\n\nReponds UNIQUEMENT avec le nom du joueur que tu veux eliminer. Rien d'autre.`,
+    }];
     const result = await chat({
-      model: this._resolveModel(),
-      system: this.buildSystemPrompt(),
-      messages: [{
-        role: 'user',
-        content: `C'est le moment du vote. Tu dois eliminer un joueur parmi :\n${candidateList}\n\nReponds UNIQUEMENT avec le nom du joueur que tu veux eliminer. Rien d'autre.`,
-      }],
+      model: this.llmModel,
+      system: systemPrompt,
+      messages: msgs,
       maxTokens: 30,
     });
+    result.systemPrompt = systemPrompt;
+    result.inputMessages = msgs;
     return result;
   }
 }

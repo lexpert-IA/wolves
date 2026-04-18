@@ -63,6 +63,10 @@ app.get('/__/auth/*', (req, res) => {
   });
 });
 
+// -- Serve static files from web/public/ (match.html etc.)
+const PUBLIC = path.join(__dirname, 'web', 'public');
+app.use(express.static(PUBLIC));
+
 // -- Serve React frontend (built by Vite into web/dist/)
 const DIST = path.join(__dirname, 'web', 'dist');
 app.use(express.static(DIST));
