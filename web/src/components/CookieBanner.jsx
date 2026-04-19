@@ -33,7 +33,7 @@ export default function CookieBanner() {
     }}>
       <div style={{ flex: 1, minWidth: 200 }}>
         <span style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.5 }}>
-          BETLY utilise des cookies essentiels au fonctionnement et des cookies analytiques anonymisés pour améliorer l'expérience.{' '}
+          WOLVES utilise des cookies essentiels au fonctionnement et des cookies analytiques anonymisés pour améliorer l'expérience.{' '}
           <a href="/privacy" style={{ color: '#a855f7', textDecoration: 'none' }}>En savoir plus →</a>
         </span>
       </div>

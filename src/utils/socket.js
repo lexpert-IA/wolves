@@ -24,6 +24,15 @@ function attachSocket(httpServer) {
       logger.debug(`Spectator vote from ${socket.id}:`, data);
     });
 
+    socket.on('place_bet', (data) => {
+      const { getEngine } = require('../engine/matchEngine');
+      const engine = getEngine(data.matchId);
+      if (!engine) return socket.emit('bet_error', { error: 'Match introuvable' });
+      const result = engine.placeBet(socket.id, data.marketId, data.side, data.amount);
+      if (result.error) return socket.emit('bet_error', result);
+      socket.emit('bet_confirmed', { marketId: data.marketId, side: data.side, amount: data.amount, odds: result.odds });
+    });
+
     socket.on('disconnect', () => {
       logger.debug(`Socket disconnected: ${socket.id}`);
     });

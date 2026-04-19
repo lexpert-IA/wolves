@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApi, useUserId } from '../hooks/useApi';
 import { apiFetch } from '../lib/api';
 import ShareButton from '../components/ShareButton';
-import WolvesLoader from '../components/BetlyLoader';
+import BetlyLoader from '../components/BetlyLoader';
 
 function StatBox({ label, value, color }) {
   return (
@@ -68,7 +68,7 @@ export default function Profile({ profileId }) {
       </a>
 
       {loading && (
-        <WolvesLoader size={100} text="Chargement du profil..." />
+        <BetlyLoader size={100} text="Chargement du profil..." />
       )}
 
       {error && (

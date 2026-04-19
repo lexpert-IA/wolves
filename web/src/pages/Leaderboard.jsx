@@ -3,7 +3,7 @@ import { useApi } from '../hooks/useApi';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useAuth } from '../hooks/useAuth';
 import { Bot, Copy } from 'lucide-react';
-import WolvesLoader from '../components/BetlyLoader';
+import BetlyLoader from '../components/BetlyLoader';
 
 const RANK = (i) => i === 0 ? '#1' : i === 1 ? '#2' : i === 2 ? '#3' : String(i + 1);
 
@@ -216,7 +216,7 @@ export default function Leaderboard() {
       )}
 
       {loading ? (
-        <WolvesLoader size={100} text="Chargement du classement..." />
+        <BetlyLoader size={100} text="Chargement du classement..." />
       ) : (
         <div className="wolves-card" style={{
           overflow: 'hidden',

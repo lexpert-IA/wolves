@@ -20,21 +20,156 @@ function shuffle(arr) {
 const WOLF_COUNT = 2;
 const SPEECH_ROUNDS = 2;
 
+const MSG_DELAY_MIN = 8000;
+const MSG_DELAY_RANGE = 4000;
+const VOTE_CAST_DELAY = 2000;
+const VOTE_SUSPENSE = 15000;
+const NIGHT_SUSPENSE = 20000;
+const PHASE_DELAY = 3000;
+
+const activeEngines = new Map();
+
+function getEngine(matchId) {
+  return activeEngines.get(matchId) || null;
+}
+
 class MatchEngine {
-  constructor(characters, io) {
+  constructor(characters) {
     this.characters = characters;
-    this.io = io;
     this.matchId = null;
     this.agents = [];
     this.chatHistory = [];
     this.round = 0;
+    this.markets = [];
+    this.bets = [];
+    this.firstEliminated = null;
+  }
+
+  _createMarkets() {
+    const markets = [];
+
+    markets.push({
+      id: 'wolves_win',
+      label: 'Les loups gagnent la partie',
+      type: 'wolves_win',
+      totalYes: 0,
+      totalNo: 0,
+      resolved: false,
+      result: null,
+    });
+
+    for (const agent of this.agents) {
+      markets.push({
+        id: `is_wolf_${agent.name.toLowerCase()}`,
+        label: `${agent.name} est un loup`,
+        type: 'is_wolf',
+        characterName: agent.name,
+        totalYes: 0,
+        totalNo: 0,
+        resolved: false,
+        result: null,
+      });
+    }
+
+    for (const agent of this.agents) {
+      markets.push({
+        id: `first_elim_${agent.name.toLowerCase()}`,
+        label: `${agent.name} premier éliminé`,
+        type: 'first_eliminated',
+        characterName: agent.name,
+        totalYes: 0,
+        totalNo: 0,
+        resolved: false,
+        result: null,
+      });
+    }
+
+    this.markets = markets;
+  }
+
+  _marketOdds(market) {
+    const total = market.totalYes + market.totalNo;
+    if (total === 0) return { yes: 2.0, no: 2.0 };
+    return {
+      yes: market.totalYes > 0 ? +(total / market.totalYes).toFixed(2) : 50.0,
+      no: market.totalNo > 0 ? +(total / market.totalNo).toFixed(2) : 50.0,
+    };
+  }
+
+  _marketsSnapshot() {
+    return this.markets.map((m) => ({
+      ...m,
+      odds: this._marketOdds(m),
+    }));
+  }
+
+  placeBet(socketId, marketId, side, amount) {
+    const market = this.markets.find((m) => m.id === marketId);
+    if (!market || market.resolved) return { error: 'Marché indisponible' };
+    if (side !== 'yes' && side !== 'no') return { error: 'Side invalide' };
+    if (!amount || amount <= 0 || amount > 500) return { error: 'Montant invalide' };
+
+    if (side === 'yes') market.totalYes += amount;
+    else market.totalNo += amount;
+
+    this.bets.push({ socketId, marketId, side, amount });
+
+    const odds = this._marketOdds(market);
+
+    emitToMatch(this.matchId, 'market_update', {
+      marketId: market.id,
+      totalYes: market.totalYes,
+      totalNo: market.totalNo,
+      odds,
+    });
+
+    return { ok: true, odds };
+  }
+
+  _resolveMarket(marketId, result) {
+    const market = this.markets.find((m) => m.id === marketId);
+    if (!market || market.resolved) return;
+    market.resolved = true;
+    market.result = result;
+
+    const odds = this._marketOdds(market);
+    const winningSide = result ? 'yes' : 'no';
+    const winningOdds = result ? odds.yes : odds.no;
+
+    const winnings = [];
+    for (const bet of this.bets) {
+      if (bet.marketId !== marketId) continue;
+      if (bet.side === winningSide) {
+        winnings.push({
+          socketId: bet.socketId,
+          payout: Math.round(bet.amount * winningOdds),
+        });
+      }
+    }
+
+    emitToMatch(this.matchId, 'market_resolve', {
+      marketId,
+      result,
+      winningSide,
+      winningOdds,
+      winnings,
+    });
+  }
+
+  _handleFirstElimination(name) {
+    if (this.firstEliminated) return;
+    this.firstEliminated = name;
+
+    for (const market of this.markets) {
+      if (market.type !== 'first_eliminated') continue;
+      this._resolveMarket(market.id, market.characterName === name);
+    }
   }
 
   async start() {
     const shuffled = shuffle(this.characters);
     const wolfChars = shuffled.slice(0, WOLF_COUNT);
     const villagerChars = shuffled.slice(WOLF_COUNT);
-
     const wolfNames = wolfChars.map((c) => c.name);
 
     const wolfAgents = wolfChars.map((c) => new Agent({
@@ -42,7 +177,6 @@ class MatchEngine {
       role: 'wolf',
       fellowWolves: wolfNames.filter((n) => n !== c.name),
     }));
-
     const villagerAgents = villagerChars.map((c) => new Agent({
       ...c,
       role: 'villager',
@@ -62,6 +196,7 @@ class MatchEngine {
       })),
     });
     this.matchId = match._id.toString();
+    activeEngines.set(this.matchId, this);
 
     const publicPlayers = this.agents.map((a) => ({
       name: a.name,
@@ -75,11 +210,19 @@ class MatchEngine {
       players: publicPlayers,
     });
 
-    await this._logEvent('system', null, null, 'La partie commence avec ' + this.agents.map((a) => a.name).join(', '));
+    this._createMarkets();
+    emitToMatch(this.matchId, 'markets_init', {
+      markets: this._marketsSnapshot(),
+    });
 
+    await this._logEvent('system', null, null, 'La partie commence avec ' + this.agents.map((a) => a.name).join(', '));
     logger.info(`Match ${this.matchId} started: wolves=${wolfNames.join(',')}, villagers=${villagerChars.map((c) => c.name).join(',')}`);
 
-    await this._gameLoop();
+    try {
+      await this._gameLoop();
+    } finally {
+      activeEngines.delete(this.matchId);
+    }
   }
 
   _livingAgents() {
@@ -107,18 +250,18 @@ class MatchEngine {
 
       await this.runDayPhase();
 
-      const winner = this._checkWinner();
+      let winner = this._checkWinner();
       if (winner) { await this.endMatch(winner); return; }
 
-      const eliminated = await this.runVotePhase();
+      await this.runVotePhase();
 
-      const winnerAfterVote = this._checkWinner();
-      if (winnerAfterVote) { await this.endMatch(winnerAfterVote); return; }
+      winner = this._checkWinner();
+      if (winner) { await this.endMatch(winner); return; }
 
       await this.runNightPhase();
 
-      const winnerAfterNight = this._checkWinner();
-      if (winnerAfterNight) { await this.endMatch(winnerAfterNight); return; }
+      winner = this._checkWinner();
+      if (winner) { await this.endMatch(winner); return; }
     }
   }
 
@@ -142,7 +285,7 @@ class MatchEngine {
     });
 
     await this._logEvent('phase_change', null, null, `Phase de jour ${this.round}`, { phase: phaseName });
-    await sleep(2000);
+    await sleep(PHASE_DELAY);
 
     for (let speechRound = 0; speechRound < SPEECH_ROUNDS; speechRound++) {
       const speakers = shuffle(this._livingAgents());
@@ -175,7 +318,7 @@ class MatchEngine {
             modelLabel: result.modelLabel,
           });
 
-          await sleep(3000 + Math.random() * 2000);
+          await sleep(MSG_DELAY_MIN + Math.random() * MSG_DELAY_RANGE);
         } catch (err) {
           logger.error(`Agent ${agent.name} speak error: ${err.message}`);
         }
@@ -190,7 +333,7 @@ class MatchEngine {
     });
 
     await this._logEvent('phase_change', null, null, `Phase de vote ${this.round}`, { phase: 'vote' });
-    await sleep(2000);
+    await sleep(PHASE_DELAY);
 
     const living = this._livingAgents();
     const candidates = living.map((a) => a.name);
@@ -221,7 +364,7 @@ class MatchEngine {
           voter: agent.name,
         });
 
-        await sleep(1500);
+        await sleep(VOTE_CAST_DELAY);
       } catch (err) {
         logger.error(`Agent ${agent.name} vote error: ${err.message}`);
       }
@@ -243,7 +386,7 @@ class MatchEngine {
       }
     }
 
-    await sleep(3000);
+    await sleep(VOTE_SUSPENSE);
 
     if (eliminated) {
       const agent = this._findAgent(eliminated);
@@ -253,7 +396,7 @@ class MatchEngine {
         await this._logEvent('elimination', null, eliminated, `${eliminated} a ete elimine par le vote du village`, { votes: tally, method: 'vote' });
 
         emitToMatch(this.matchId, 'vote_result', {
-          eliminated: eliminated,
+          eliminated,
           tally,
         });
 
@@ -262,6 +405,8 @@ class MatchEngine {
           method: 'vote',
           round: this.round,
         });
+
+        this._handleFirstElimination(eliminated);
 
         logger.info(`Match ${this.matchId}: ${eliminated} (${agent.role}) eliminated by vote`);
         return agent;
@@ -289,7 +434,7 @@ class MatchEngine {
     });
 
     await this._logEvent('phase_change', null, null, `Phase de nuit ${this.round}`, { phase: 'night' });
-    await sleep(3000);
+    await sleep(PHASE_DELAY);
 
     const living = this._livingAgents();
     const wolves = living.filter((a) => a.role === 'wolf');
@@ -311,7 +456,6 @@ class MatchEngine {
       }
     }
 
-    // Wolves agree on target — majority or first wolf decides
     const nightTally = {};
     for (const target of Object.values(wolfVotes)) {
       nightTally[target] = (nightTally[target] || 0) + 1;
@@ -328,7 +472,7 @@ class MatchEngine {
 
     const victim = this._findAgent(victimName) || villagers[0];
 
-    await sleep(5000);
+    await sleep(NIGHT_SUSPENSE);
 
     victim._alive = false;
 
@@ -339,6 +483,8 @@ class MatchEngine {
       round: this.round,
     });
 
+    this._handleFirstElimination(victim.name);
+
     logger.info(`Match ${this.matchId}: ${victim.name} killed at night by wolves (${Object.keys(wolfVotes).join(',')})`);
   }
 
@@ -348,6 +494,21 @@ class MatchEngine {
       role: a.role,
       alive: a._alive !== false,
     }));
+
+    // Resolve wolves_win market
+    this._resolveMarket('wolves_win', winnerSide === 'wolves');
+
+    // Resolve is_wolf markets
+    for (const agent of this.agents) {
+      this._resolveMarket(`is_wolf_${agent.name.toLowerCase()}`, agent.role === 'wolf');
+    }
+
+    // Resolve remaining first_eliminated markets (if nobody was eliminated)
+    for (const market of this.markets) {
+      if (market.type === 'first_eliminated' && !market.resolved) {
+        this._resolveMarket(market.id, false);
+      }
+    }
 
     await this._logEvent('system', null, null, `Partie terminee. Vainqueurs : ${winnerSide}`, { winnerSide, roles });
 
@@ -368,4 +529,4 @@ class MatchEngine {
   }
 }
 
-module.exports = { MatchEngine };
+module.exports = { MatchEngine, getEngine };

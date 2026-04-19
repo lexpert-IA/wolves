@@ -122,7 +122,7 @@ export default function AuthModal({ onClose }) {
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
             <div style={{ marginBottom: 10 }}>
-              <img src="/betly-logo.png" alt="BETLY" style={{ height: 36 }} />
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 900, letterSpacing: 6, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>WOLVES</div>
             </div>
             <p style={{ fontSize: 16, fontWeight: 600, color: '#f8fafc', margin: '0 0 4px' }}>
               Rejoins la communauté

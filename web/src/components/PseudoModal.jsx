@@ -88,8 +88,8 @@ export default function PseudoModal() {
           <style>{`@keyframes modal-in { from { opacity:0; transform:scale(.95) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }`}</style>
 
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <div style={{ marginBottom: 8 }}>
-              <img src="/betly-logo.png" alt="WOLVES" style={{ height: 36 }} />
+            <div style={{ marginBottom: 8, fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 900, letterSpacing: 6, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              WOLVES
             </div>
             <p style={{ fontSize: 16, fontWeight: 600, color: '#f8fafc', margin: '0 0 4px' }}>
               Choisis ton pseudo

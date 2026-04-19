@@ -34,7 +34,7 @@
       background: #0a0a0f;
       color: #e0e0e0;
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -68,14 +68,22 @@
     #phase-badge.vote  { background: rgba(239,68,68,0.15);  color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
     #phase-badge.night { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
 
-    #round-label {
-      font-size: 13px;
-      color: #666;
+    #round-label { font-size: 13px; color: #666; letter-spacing: 1px; }
+    #status-label { font-size: 12px; color: #555; }
+    #token-display {
+      position: absolute;
+      right: 16px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #facc15;
       letter-spacing: 1px;
     }
-    #status-label {
-      font-size: 12px;
-      color: #555;
+
+    /* ── Main content (chat + markets side by side) ── */
+    #main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
     }
 
     /* ── Chat area ── */
@@ -97,12 +105,8 @@
       padding: 4px 0;
       line-height: 1.5;
       font-size: 14px;
-      position: relative;
     }
-    .chat-speaker {
-      font-weight: 700;
-      margin-right: 6px;
-    }
+    .chat-speaker { font-weight: 700; margin-right: 6px; }
     .chat-model-tag {
       font-size: 10px;
       color: #666;
@@ -112,9 +116,7 @@
       margin-right: 4px;
       vertical-align: middle;
     }
-    .chat-text {
-      color: #ccc;
-    }
+    .chat-text { color: #ccc; }
     .verify-btn {
       display: inline-block;
       margin-left: 8px;
@@ -128,10 +130,208 @@
       color: #888;
       padding: 2px 4px;
     }
-    .verify-btn:hover {
-      opacity: 1;
-      color: #facc15;
+    .verify-btn:hover { opacity: 1; color: #facc15; }
+
+    .chat-system {
+      color: #555;
+      font-style: italic;
+      font-size: 13px;
+      text-align: center;
+      padding: 8px 0;
     }
+    .chat-elimination {
+      color: #ef4444;
+      font-weight: 600;
+      text-align: center;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    .chat-vote {
+      color: #f59e0b;
+      font-size: 13px;
+      text-align: center;
+      padding: 2px 0;
+    }
+
+    /* ── Markets panel ── */
+    #markets-panel {
+      width: 320px;
+      flex-shrink: 0;
+      border-left: 1px solid rgba(255,255,255,0.06);
+      background: rgba(15,15,25,0.95);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    #markets-panel::-webkit-scrollbar { width: 5px; }
+    #markets-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+    .market-header {
+      padding: 12px 14px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #666;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .market-card {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.2s;
+    }
+    .market-card:hover { background: rgba(255,255,255,0.02); }
+    .market-card.resolved { opacity: 0.5; }
+    .market-card.resolved .market-odds-row button { pointer-events: none; }
+
+    .market-label {
+      font-size: 12px;
+      color: #bbb;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .market-result {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+    .market-result.win { background: rgba(34,197,94,0.2); color: #22c55e; }
+    .market-result.lose { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+    .market-odds-row {
+      display: flex;
+      gap: 6px;
+    }
+    .market-odds-row button {
+      flex: 1;
+      padding: 6px 0;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 5px;
+      background: rgba(255,255,255,0.03);
+      color: #ccc;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .market-odds-row .btn-yes:hover { background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.4); color: #22c55e; }
+    .market-odds-row .btn-no:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #ef4444; }
+
+    .market-pool {
+      font-size: 10px;
+      color: #555;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    /* ── Bet popup ── */
+    #bet-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 500;
+      justify-content: center;
+      align-items: center;
+    }
+    #bet-overlay.active { display: flex; }
+    #bet-modal {
+      background: #14141f;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 24px;
+      width: 340px;
+    }
+    #bet-modal h3 {
+      font-size: 15px;
+      margin-bottom: 4px;
+      color: #e0e0e0;
+    }
+    #bet-market-label {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 16px;
+    }
+    #bet-side-label {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    #bet-side-label.yes { background: rgba(34,197,94,0.2); color: #22c55e; }
+    #bet-side-label.no { background: rgba(239,68,68,0.15); color: #ef4444; }
+
+    #bet-amount-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+    #bet-amount {
+      flex: 1;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #e0e0e0;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      outline: none;
+    }
+    #bet-amount:focus { border-color: rgba(250,204,21,0.5); }
+    .bet-preset {
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      color: #aaa;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .bet-preset:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    #bet-info {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    #bet-info span { color: #facc15; font-weight: 600; }
+
+    #bet-actions {
+      display: flex;
+      gap: 10px;
+    }
+    #bet-confirm {
+      flex: 1;
+      padding: 10px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #bet-confirm:hover { filter: brightness(1.1); }
+    #bet-cancel {
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #aaa;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    #bet-cancel:hover { background: rgba(255,255,255,0.1); }
 
     /* ── Verify modal ── */
     #verify-overlay {
@@ -155,78 +355,34 @@
       overflow-y: auto;
       padding: 24px;
     }
-    #verify-modal h3 {
-      color: #facc15;
-      font-size: 16px;
-      margin-bottom: 16px;
-    }
-    .verify-section {
-      margin-bottom: 16px;
-    }
+    #verify-modal h3 { color: #facc15; font-size: 16px; margin-bottom: 16px; }
+    .verify-section { margin-bottom: 16px; }
     .verify-section label {
-      display: block;
-      font-size: 11px;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
+      display: block; font-size: 11px; color: #888;
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
     }
     .verify-section pre {
       background: rgba(0,0,0,0.4);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 6px;
-      padding: 12px;
-      font-size: 12px;
-      color: #aaa;
-      white-space: pre-wrap;
-      word-break: break-word;
-      max-height: 200px;
-      overflow-y: auto;
+      padding: 12px; font-size: 12px; color: #aaa;
+      white-space: pre-wrap; word-break: break-word;
+      max-height: 200px; overflow-y: auto;
     }
-    .verify-meta {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
+    .verify-meta { display: flex; gap: 16px; flex-wrap: wrap; }
     .verify-meta-item {
       background: rgba(255,255,255,0.04);
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: 8px 12px; border-radius: 6px; font-size: 13px;
     }
     .verify-meta-item span { color: #facc15; font-weight: 600; }
     #verify-close {
       margin-top: 16px;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.1);
-      color: #ccc;
-      padding: 8px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
+      color: #ccc; padding: 8px 24px;
+      border-radius: 6px; cursor: pointer; font-size: 13px;
     }
     #verify-close:hover { background: rgba(255,255,255,0.1); }
-
-    .chat-system {
-      color: #555;
-      font-style: italic;
-      font-size: 13px;
-      text-align: center;
-      padding: 8px 0;
-    }
-    .chat-elimination {
-      color: #ef4444;
-      font-weight: 600;
-      text-align: center;
-      padding: 6px 0;
-      font-size: 13px;
-    }
-    .chat-vote {
-      color: #f59e0b;
-      font-size: 13px;
-      text-align: center;
-      padding: 2px 0;
-    }
 
     /* ── Character cards ── */
     #cards-area {
@@ -244,86 +400,42 @@
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 10px;
       padding: 10px 14px;
-      min-width: 110px;
-      max-width: 160px;
+      min-width: 100px;
+      max-width: 140px;
       flex: 1;
       text-align: center;
       transition: all 0.4s;
       position: relative;
     }
-    .card.dead {
-      opacity: 0.45;
-      filter: grayscale(0.8);
-    }
-    .card.flash {
-      animation: redFlash 1.2s ease;
-    }
+    .card.dead { opacity: 0.45; filter: grayscale(0.8); }
+    .card.flash { animation: redFlash 1.2s ease; }
     .card-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 700;
-      color: #fff;
-      margin: 0 auto 6px;
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: #fff;
+      margin: 0 auto 4px;
     }
     .card-name {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 12px; font-weight: 600; margin-bottom: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .card-name.dead-name {
-      text-decoration: line-through;
-      color: #666;
-    }
-    .card-trait {
-      font-size: 11px;
-      color: #777;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .card-status {
-      position: absolute;
-      top: 6px;
-      right: 8px;
-      font-size: 10px;
-    }
-    .card-role {
-      font-size: 12px;
-      margin-top: 4px;
-    }
+    .card-name.dead-name { text-decoration: line-through; color: #666; }
+    .card-trait { font-size: 10px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-status { position: absolute; top: 4px; right: 6px; font-size: 9px; }
+    .card-role { font-size: 11px; margin-top: 3px; }
 
     /* ── Phase banner overlay ── */
     #phase-banner {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(10,10,15,0.85);
-      z-index: 100;
-      pointer-events: none;
-      opacity: 0;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(10,10,15,0.85); z-index: 100;
+      pointer-events: none; opacity: 0;
     }
-    #phase-banner.show {
-      opacity: 1;
-      animation: bannerIn 0.5s ease forwards;
-    }
-    #phase-banner.hide {
-      animation: bannerOut 0.6s ease forwards;
-    }
+    #phase-banner.show { opacity: 1; animation: bannerIn 0.5s ease forwards; }
+    #phase-banner.hide { animation: bannerOut 0.6s ease forwards; }
     #phase-banner-text {
       font-size: clamp(36px, 8vw, 72px);
-      font-weight: 900;
-      letter-spacing: 8px;
-      text-transform: uppercase;
+      font-weight: 900; letter-spacing: 8px; text-transform: uppercase;
     }
     #phase-banner-text.day   { color: #facc15; text-shadow: 0 0 40px rgba(250,204,21,0.4); }
     #phase-banner-text.vote  { color: #ef4444; text-shadow: 0 0 40px rgba(239,68,68,0.4); }
@@ -331,92 +443,62 @@
 
     /* ── Winner banner ── */
     #winner-banner {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 16px;
-      background: rgba(10,10,15,0.92);
-      z-index: 200;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+      background: rgba(10,10,15,0.92); z-index: 200;
     }
     #winner-banner.show { display: flex; }
     #winner-title {
       font-size: clamp(28px, 6vw, 56px);
-      font-weight: 900;
-      letter-spacing: 4px;
+      font-weight: 900; letter-spacing: 4px;
     }
     #winner-title.wolves    { color: #ef4444; }
     #winner-title.villagers { color: #22c55e; }
-    #winner-subtitle {
-      font-size: 16px;
-      color: #888;
-    }
+    #winner-subtitle { font-size: 16px; color: #888; }
+    #winner-payout { font-size: 20px; color: #facc15; font-weight: 700; }
     #winner-close {
-      margin-top: 12px;
-      padding: 8px 24px;
+      margin-top: 12px; padding: 8px 24px;
       background: rgba(255,255,255,0.1);
       border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 6px;
-      color: #ccc;
-      cursor: pointer;
-      font-size: 14px;
+      border-radius: 6px; color: #ccc; cursor: pointer; font-size: 14px;
     }
     #winner-close:hover { background: rgba(255,255,255,0.15); }
 
     /* ── Start screen ── */
     #start-screen {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 24px;
-      background: #0a0a0f;
-      z-index: 300;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 24px;
+      background: #0a0a0f; z-index: 300;
     }
     #start-screen.hidden { display: none; }
     #start-title {
       font-size: clamp(32px, 8vw, 64px);
-      font-weight: 900;
-      letter-spacing: 6px;
-      color: #e0e0e0;
+      font-weight: 900; letter-spacing: 6px; color: #e0e0e0;
     }
-    #start-subtitle {
-      font-size: 14px;
-      color: #555;
-      letter-spacing: 2px;
-    }
+    #start-subtitle { font-size: 14px; color: #555; letter-spacing: 2px; }
     #start-btn {
-      padding: 16px 48px;
-      font-size: 18px;
-      font-weight: 700;
+      padding: 16px 48px; font-size: 18px; font-weight: 700;
       letter-spacing: 2px;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      color: #fff; border: none; border-radius: 8px; cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
     }
-    #start-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(99,102,241,0.4);
-    }
+    #start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.4); }
     #start-btn:active { transform: translateY(0); }
-    #start-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
+    #start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    #start-error { color: #ef4444; font-size: 13px; min-height: 20px; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+      background: rgba(20,20,35,0.95); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px; padding: 10px 20px; color: #e0e0e0;
+      font-size: 13px; z-index: 600; display: none;
+      animation: fadeIn 0.3s ease;
     }
-    #start-error {
-      color: #ef4444;
-      font-size: 13px;
-      min-height: 20px;
-    }
+    #toast.show { display: block; }
   </style>
 </head>
 <body>
@@ -424,7 +506,7 @@
   <!-- Start screen -->
   <div id="start-screen">
     <div id="start-title">WOLVES</div>
-    <div id="start-subtitle">Loup-Garou &middot; 12 IA &middot; En direct</div>
+    <div id="start-subtitle">Loup-Garou &middot; 8 IA &middot; En direct &middot; Pariez !</div>
     <button id="start-btn" onclick="startMatch()">LANCER UNE PARTIE</button>
     <div id="start-error"></div>
   </div>
@@ -434,10 +516,14 @@
     <div id="phase-badge">EN ATTENTE</div>
     <div id="round-label"></div>
     <div id="status-label"></div>
+    <div id="token-display"></div>
   </div>
 
-  <!-- Chat -->
-  <div id="chat-area"></div>
+  <!-- Main content -->
+  <div id="main-content">
+    <div id="chat-area"></div>
+    <div id="markets-panel"></div>
+  </div>
 
   <!-- Character cards -->
   <div id="cards-area"></div>
@@ -451,44 +537,99 @@
   <div id="winner-banner">
     <div id="winner-title"></div>
     <div id="winner-subtitle"></div>
+    <div id="winner-payout"></div>
     <button id="winner-close" onclick="closeWinner()">FERMER</button>
+  </div>
+
+  <!-- Bet popup -->
+  <div id="bet-overlay" onclick="if(event.target===this)closeBet()">
+    <div id="bet-modal">
+      <h3>Placer un pari</h3>
+      <div id="bet-market-label"></div>
+      <div id="bet-side-label"></div>
+      <div id="bet-amount-row">
+        <input type="number" id="bet-amount" min="1" max="500" value="50" />
+        <button class="bet-preset" onclick="document.getElementById('bet-amount').value=10">10</button>
+        <button class="bet-preset" onclick="document.getElementById('bet-amount').value=50">50</button>
+        <button class="bet-preset" onclick="document.getElementById('bet-amount').value=100">100</button>
+        <button class="bet-preset" onclick="document.getElementById('bet-amount').value=250">250</button>
+      </div>
+      <div id="bet-info">Solde : <span id="bet-balance"></span> W</div>
+      <div id="bet-actions">
+        <button id="bet-confirm" onclick="confirmBet()">PARIER</button>
+        <button id="bet-cancel" onclick="closeBet()">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- Verify overlay -->
+  <div id="verify-overlay" onclick="if(event.target===this)closeVerify()">
+    <div id="verify-modal"></div>
   </div>
 
   <script>
     // ── State ──
-    let socket = null;
-    let matchId = null;
-    let players = [];
-    let speakerColors = {};
-    let speakerOrder = 0;
+    var socket = null;
+    var matchId = null;
+    var players = [];
+    var speakerColors = {};
+    var speakerOrder = 0;
+    var markets = [];
+    var pendingBet = null;
+    var totalPayout = 0;
 
-    const COLORS = [
+    var STARTING_TOKENS = 1000;
+    var STORAGE_KEY = 'wolves_tokens';
+
+    var COLORS = [
       '#E8A87C', '#85DCB8', '#B8B5FF', '#F8B595', '#F67280',
       '#C06C84', '#6C5B7B', '#355C7D', '#99B898', '#FECEAB',
       '#FF847C', '#E84A5F'
     ];
-    const AVATAR_BG = [
+    var AVATAR_BG = [
       '#7c3aed', '#2563eb', '#0891b2', '#059669', '#d97706',
       '#dc2626', '#9333ea', '#4f46e5', '#0d9488', '#ca8a04',
       '#e11d48', '#7c2d12'
     ];
+    var PHASE_LABELS = { day: 'JOUR', vote: 'VOTE', night: 'NUIT' };
 
-    const PHASE_LABELS = { day: 'JOUR', vote: 'VOTE', night: 'NUIT' };
+    // ── Token balance ──
+    function getBalance() {
+      var b = localStorage.getItem(STORAGE_KEY);
+      if (b === null) {
+        localStorage.setItem(STORAGE_KEY, STARTING_TOKENS);
+        return STARTING_TOKENS;
+      }
+      return parseInt(b, 10) || 0;
+    }
+    function setBalance(v) {
+      localStorage.setItem(STORAGE_KEY, v);
+      updateBalanceDisplay();
+    }
+    function updateBalanceDisplay() {
+      document.getElementById('token-display').textContent = getBalance() + ' W';
+      var betBal = document.getElementById('bet-balance');
+      if (betBal) betBal.textContent = getBalance();
+    }
 
     // ── Start match ──
     async function startMatch() {
-      const btn = document.getElementById('start-btn');
-      const err = document.getElementById('start-error');
+      var btn = document.getElementById('start-btn');
+      var err = document.getElementById('start-error');
       btn.disabled = true;
       btn.textContent = 'LANCEMENT...';
       err.textContent = '';
 
       try {
-        const res = await fetch('/api/matches/start', { method: 'POST' });
+        var res = await fetch('/api/matches/start', { method: 'POST' });
         if (!res.ok) throw new Error('Erreur serveur: ' + res.status);
-        const data = await res.json();
+        var data = await res.json();
         matchId = data.matchId;
         document.getElementById('start-screen').classList.add('hidden');
+        updateBalanceDisplay();
         connectSocket();
       } catch (e) {
         err.textContent = e.message;
@@ -500,7 +641,7 @@
     // ── Socket connection ──
     function connectSocket() {
       socket = io();
-      socket.on('connect', () => {
+      socket.on('connect', function () {
         socket.emit('join_match', matchId);
         catchUp();
       });
@@ -513,25 +654,28 @@
       socket.on('elimination', onElimination);
       socket.on('night_kill', onNightKill);
       socket.on('match_end', onMatchEnd);
+      socket.on('markets_init', onMarketsInit);
+      socket.on('market_update', onMarketUpdate);
+      socket.on('market_resolve', onMarketResolve);
+      socket.on('bet_confirmed', onBetConfirmed);
+      socket.on('bet_error', onBetError);
     }
 
     async function catchUp() {
       try {
-        const res = await fetch('/api/matches/' + matchId + '/live');
+        var res = await fetch('/api/matches/' + matchId + '/live');
         if (!res.ok) return;
-        const data = await res.json();
+        var data = await res.json();
         if (data.match && data.match.players) {
-          players = data.match.players.map(p => ({
-            name: p.characterName || p.name,
-            archetype: p.archetype || '',
-            trait: p.trait || '',
-            alive: p.alive,
-          }));
+          players = data.match.players.map(function (p) {
+            return { name: p.characterName || p.name, archetype: p.archetype || '', trait: p.trait || '', alive: p.alive };
+          });
           renderCards();
           addSystemMsg('La partie commence avec ' + players.length + ' joueurs.');
           document.getElementById('status-label').textContent = 'Partie #' + matchId.slice(-6);
         }
-        for (const ev of data.events || []) {
+        for (var i = 0; i < (data.events || []).length; i++) {
+          var ev = data.events[i];
           if (ev.type === 'chat') {
             onChatMessage({ speaker: ev.metadata.actorName, text: ev.content, eventId: ev._id, modelLabel: ev.metadata?.llm?.modelLabel });
           } else if (ev.type === 'phase_change') {
@@ -542,6 +686,15 @@
             onVoteCast({ voter: ev.metadata.actorName });
           }
         }
+
+        // Fetch markets if available
+        try {
+          var mRes = await fetch('/api/matches/' + matchId + '/markets');
+          if (mRes.ok) {
+            var mData = await mRes.json();
+            if (mData.markets) onMarketsInit({ markets: mData.markets });
+          }
+        } catch (e) {}
       } catch (e) {
         console.error('Catch-up failed:', e);
       }
@@ -556,34 +709,29 @@
     }
 
     function onPhaseChange(data) {
-      const phase = data.phase;
-      const round = data.round || 1;
-
-      // Update top bar
-      const badge = document.getElementById('phase-badge');
+      var phase = data.phase;
+      var round = data.round || 1;
+      var badge = document.getElementById('phase-badge');
       badge.textContent = PHASE_LABELS[phase] || phase.toUpperCase();
       badge.className = phase;
       document.getElementById('round-label').textContent = 'Tour ' + round;
-
-      // Show banner
       showPhaseBanner(phase);
-
       addSystemMsg((PHASE_LABELS[phase] || phase) + ' — Tour ' + round);
     }
 
     function onChatMessage(data) {
-      const color = getSpeakerColor(data.speaker);
-      const el = document.createElement('div');
+      var color = getSpeakerColor(data.speaker);
+      var el = document.createElement('div');
       el.className = 'chat-msg';
-      const modelTag = data.modelLabel ? '<span class="chat-model-tag">' + escHtml(data.modelLabel) + '</span>' : '';
-      const verifyBtn = data.eventId ? '<button class="verify-btn" onclick="showVerify(\'' + data.eventId + '\')" title="Voir les d\u00e9tails LLM">&#128269;</button>' : '';
+      var modelTag = data.modelLabel ? '<span class="chat-model-tag">' + escHtml(data.modelLabel) + '</span>' : '';
+      var verifyBtn = data.eventId ? '<button class="verify-btn" onclick="showVerify(\'' + data.eventId + '\')" title="Voir les d\u00e9tails LLM">&#128269;</button>' : '';
       el.innerHTML = '<span class="chat-speaker" style="color:' + color + '">' +
         escHtml(data.speaker) + '</span>' + modelTag + '<span class="chat-text">' + escHtml(data.text) + '</span>' + verifyBtn;
       appendChat(el);
     }
 
     function onVoteCast(data) {
-      const el = document.createElement('div');
+      var el = document.createElement('div');
       el.className = 'chat-vote';
       el.textContent = escHtml(data.voter) + ' a vot\u00e9.';
       appendChat(el);
@@ -595,26 +743,23 @@
       } else {
         addSystemMsg('Aucune \u00e9limination suite au vote.');
       }
-      // Show tally
       if (data.tally) {
-        const parts = Object.entries(data.tally).map(function(e) { return e[0] + ': ' + e[1]; });
+        var parts = Object.entries(data.tally).map(function (e) { return e[0] + ': ' + e[1]; });
         addSystemMsg('Votes — ' + parts.join(', '));
       }
     }
 
     function onElimination(data) {
-      const method = data.method === 'night_kill' ? 'tu\u00e9(e) par les loups' : '\u00e9limin\u00e9(e) par le village';
-      const el = document.createElement('div');
+      var method = data.method === 'night_kill' ? 'tu\u00e9(e) par les loups' : '\u00e9limin\u00e9(e) par le village';
+      var el = document.createElement('div');
       el.className = 'chat-elimination';
-      el.textContent = '\u2620 ' + data.name + ' a \u00e9t\u00e9 ' + method + ' (Tour ' + data.round + ')';
+      el.textContent = '\u2620 ' + data.name + ' a \u00e9t\u00e9 ' + method + ' (Tour ' + (data.round || '') + ')';
       appendChat(el);
-
-      // Update card
       markDead(data.name);
     }
 
     function onNightKill(data) {
-      const el = document.createElement('div');
+      var el = document.createElement('div');
       el.className = 'chat-elimination';
       el.textContent = '\ud83c\udf19 ' + data.victim + ' a \u00e9t\u00e9 d\u00e9vor\u00e9(e) durant la nuit. (Tour ' + data.round + ')';
       appendChat(el);
@@ -622,16 +767,15 @@
     }
 
     function onMatchEnd(data) {
-      const side = data.winnerSide;
+      var side = data.winnerSide;
       addSystemMsg('PARTIE TERMIN\u00c9E — Victoire des ' + (side === 'wolves' ? 'LOUPS' : 'VILLAGEOIS') + ' !');
 
-      // Reveal roles
       if (data.roles) {
-        data.roles.forEach(function(r) {
-          const card = document.querySelector('.card[data-name="' + r.name + '"]');
+        data.roles.forEach(function (r) {
+          var card = document.querySelector('.card[data-name="' + r.name + '"]');
           if (card) {
-            const roleEl = card.querySelector('.card-role');
-            const icon = r.role === 'wolf' || r.role === 'loup' ? '\ud83d\udc3a' : '\ud83c\udfe0';
+            var roleEl = card.querySelector('.card-role');
+            var icon = r.role === 'wolf' ? '\ud83d\udc3a' : '\ud83c\udfe0';
             roleEl.textContent = icon + ' ' + r.role;
             if (!r.alive) {
               card.classList.add('dead');
@@ -642,13 +786,18 @@
         });
       }
 
-      // Winner banner
-      const banner = document.getElementById('winner-banner');
-      const title = document.getElementById('winner-title');
-      const sub = document.getElementById('winner-subtitle');
+      var banner = document.getElementById('winner-banner');
+      var title = document.getElementById('winner-title');
+      var sub = document.getElementById('winner-subtitle');
+      var payout = document.getElementById('winner-payout');
       title.textContent = side === 'wolves' ? '\ud83d\udc3a LOUPS VICTORIEUX' : '\ud83c\udfe0 VILLAGE SAUV\u00c9';
       title.className = side;
       sub.textContent = 'La partie est termin\u00e9e.';
+      if (totalPayout > 0) {
+        payout.textContent = '+' + totalPayout + ' W gagn\u00e9s !';
+      } else {
+        payout.textContent = '';
+      }
       banner.classList.add('show');
     }
 
@@ -656,16 +805,152 @@
       document.getElementById('winner-banner').classList.remove('show');
     }
 
+    // ── Markets handlers ──
+    function onMarketsInit(data) {
+      markets = data.markets || [];
+      renderMarkets();
+    }
+
+    function onMarketUpdate(data) {
+      var m = markets.find(function (x) { return x.id === data.marketId; });
+      if (!m) return;
+      m.totalYes = data.totalYes;
+      m.totalNo = data.totalNo;
+      m.odds = data.odds;
+      renderMarkets();
+    }
+
+    function onMarketResolve(data) {
+      var m = markets.find(function (x) { return x.id === data.marketId; });
+      if (!m) return;
+      m.resolved = true;
+      m.result = data.result;
+
+      // Calculate winnings for this client
+      if (data.winnings) {
+        for (var i = 0; i < data.winnings.length; i++) {
+          var w = data.winnings[i];
+          if (w.socketId === socket.id) {
+            totalPayout += w.payout;
+            setBalance(getBalance() + w.payout);
+            showToast('+' + w.payout + ' W gagn\u00e9s sur ' + m.label + ' !');
+          }
+        }
+      }
+
+      renderMarkets();
+    }
+
+    function onBetConfirmed(data) {
+      showToast('Pari plac\u00e9 : ' + data.amount + ' W sur ' + (data.side === 'yes' ? 'OUI' : 'NON'));
+    }
+
+    function onBetError(data) {
+      showToast('Erreur : ' + (data.error || 'Pari refus\u00e9'));
+    }
+
+    // ── Render markets ──
+    function renderMarkets() {
+      var panel = document.getElementById('markets-panel');
+      panel.innerHTML = '';
+
+      var groups = [
+        { type: 'wolves_win', title: 'R\u00c9SULTAT' },
+        { type: 'is_wolf', title: 'IDENTIT\u00c9' },
+        { type: 'first_eliminated', title: 'PREMIER \u00c9LIMIN\u00c9' },
+      ];
+
+      for (var g = 0; g < groups.length; g++) {
+        var group = groups[g];
+        var groupMarkets = markets.filter(function (m) { return m.type === group.type; });
+        if (groupMarkets.length === 0) continue;
+
+        var header = document.createElement('div');
+        header.className = 'market-header';
+        header.textContent = group.title;
+        panel.appendChild(header);
+
+        for (var i = 0; i < groupMarkets.length; i++) {
+          var m = groupMarkets[i];
+          var card = document.createElement('div');
+          card.className = 'market-card' + (m.resolved ? ' resolved' : '');
+          card.dataset.marketId = m.id;
+
+          var odds = m.odds || { yes: 2.0, no: 2.0 };
+          var pool = m.totalYes + m.totalNo;
+
+          var labelHtml = '<div class="market-label"><span>' + escHtml(m.label) + '</span>';
+          if (m.resolved) {
+            labelHtml += '<span class="market-result ' + (m.result ? 'win' : 'lose') + '">' +
+              (m.result ? '\u2713 OUI' : '\u2717 NON') + '</span>';
+          }
+          labelHtml += '</div>';
+
+          var oddsHtml = '<div class="market-odds-row">' +
+            '<button class="btn-yes" data-market="' + m.id + '" data-side="yes" onclick="openBet(this)">OUI ' + odds.yes.toFixed(2) + '\u00d7</button>' +
+            '<button class="btn-no" data-market="' + m.id + '" data-side="no" onclick="openBet(this)">NON ' + odds.no.toFixed(2) + '\u00d7</button>' +
+            '</div>';
+
+          var poolHtml = pool > 0 ? '<div class="market-pool">' + pool + ' W en jeu</div>' : '';
+
+          card.innerHTML = labelHtml + oddsHtml + poolHtml;
+          panel.appendChild(card);
+        }
+      }
+    }
+
+    // ── Betting ──
+    function openBet(btn) {
+      var marketId = btn.dataset.market;
+      var side = btn.dataset.side;
+      var m = markets.find(function (x) { return x.id === marketId; });
+      if (!m || m.resolved) return;
+
+      pendingBet = { marketId: marketId, side: side };
+
+      document.getElementById('bet-market-label').textContent = m.label;
+      var sideLabel = document.getElementById('bet-side-label');
+      sideLabel.textContent = side === 'yes' ? 'OUI' : 'NON';
+      sideLabel.className = side;
+      document.getElementById('bet-amount').value = 50;
+      document.getElementById('bet-balance').textContent = getBalance();
+      document.getElementById('bet-overlay').classList.add('active');
+      document.getElementById('bet-amount').focus();
+    }
+
+    function closeBet() {
+      document.getElementById('bet-overlay').classList.remove('active');
+      pendingBet = null;
+    }
+
+    function confirmBet() {
+      if (!pendingBet || !socket) return;
+      var amount = parseInt(document.getElementById('bet-amount').value, 10);
+      if (!amount || amount <= 0) return showToast('Montant invalide');
+      if (amount > getBalance()) return showToast('Solde insuffisant');
+
+      setBalance(getBalance() - amount);
+
+      socket.emit('place_bet', {
+        matchId: matchId,
+        marketId: pendingBet.marketId,
+        side: pendingBet.side,
+        amount: amount,
+      });
+
+      closeBet();
+    }
+
     // ── UI helpers ──
     function renderCards() {
-      const area = document.getElementById('cards-area');
+      var area = document.getElementById('cards-area');
       area.innerHTML = '';
-      players.forEach(function(p, i) {
-        const card = document.createElement('div');
+      players.forEach(function (p, i) {
+        var card = document.createElement('div');
         card.className = 'card' + (p.alive === false ? ' dead' : '');
         card.dataset.name = p.name;
-        const bg = AVATAR_BG[i % AVATAR_BG.length];
-        const initial = (p.name || '?')[0].toUpperCase();
+        var bg = AVATAR_BG[i % AVATAR_BG.length];
+        var initial = (p.name || '?')[0].toUpperCase();
         card.innerHTML =
           '<div class="card-status">' + (p.alive === false ? '\u274c' : '\ud83d\udfe2') + '</div>' +
           '<div class="card-avatar" style="background:' + bg + '">' + initial + '</div>' +
@@ -677,10 +962,10 @@
     }
 
     function markDead(name) {
-      const card = document.querySelector('.card[data-name="' + name + '"]');
+      var card = document.querySelector('.card[data-name="' + name + '"]');
       if (!card) return;
       card.classList.add('flash');
-      setTimeout(function() {
+      setTimeout(function () {
         card.classList.add('dead');
         card.querySelector('.card-name').classList.add('dead-name');
         card.querySelector('.card-status').textContent = '\u274c';
@@ -714,8 +999,15 @@
       text.textContent = PHASE_LABELS[phase] || phase.toUpperCase();
       text.className = phase;
       banner.className = 'show';
-      setTimeout(function() { banner.className = 'hide'; }, 2200);
-      setTimeout(function() { banner.className = ''; }, 2800);
+      setTimeout(function () { banner.className = 'hide'; }, 2200);
+      setTimeout(function () { banner.className = ''; }, 2800);
+    }
+
+    function showToast(msg) {
+      var toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'show';
+      setTimeout(function () { toast.className = ''; }, 3000);
     }
 
     function escHtml(s) {
@@ -725,17 +1017,17 @@
     }
 
     async function showVerify(eventId) {
-      const overlay = document.getElementById('verify-overlay');
-      const modal = document.getElementById('verify-modal');
+      var overlay = document.getElementById('verify-overlay');
+      var modal = document.getElementById('verify-modal');
       modal.innerHTML = '<p style="color:#888">Chargement...</p>';
       overlay.classList.add('active');
 
       try {
-        const res = await fetch('/api/matches/' + matchId + '/events/' + eventId + '/raw');
+        var res = await fetch('/api/matches/' + matchId + '/events/' + eventId + '/raw');
         if (!res.ok) throw new Error('Erreur ' + res.status);
-        const d = await res.json();
+        var d = await res.json();
 
-        let html = '<h3>Transparence LLM</h3>';
+        var html = '<h3>Transparence LLM</h3>';
 
         if (d.llm) {
           html += '<div class="verify-meta">';
@@ -745,17 +1037,14 @@
           html += '<div class="verify-meta-item">Tokens in : <span>' + (d.llm.usage?.input_tokens || 0) + '</span></div>';
           html += '<div class="verify-meta-item">Tokens out : <span>' + (d.llm.usage?.output_tokens || 0) + '</span></div>';
           html += '</div>';
-
-          html += '<div class="verify-section"><label>Prompt systeme (3 couches)</label>';
+          html += '<div class="verify-section"><label>Prompt systeme</label>';
           html += '<pre>' + escHtml(d.llm.systemPrompt) + '</pre></div>';
-
           html += '<div class="verify-section"><label>Message envoye</label>';
-          html += '<pre>' + escHtml(d.llm.inputMessages?.map(function(m) { return m.content; }).join('\n') || '') + '</pre></div>';
-
-          html += '<div class="verify-section"><label>Reponse brute du modele</label>';
+          html += '<pre>' + escHtml(d.llm.inputMessages?.map(function (m) { return m.content; }).join('\n') || '') + '</pre></div>';
+          html += '<div class="verify-section"><label>Reponse brute</label>';
           html += '<pre>' + escHtml(d.llm.rawResponse) + '</pre></div>';
         } else {
-          html += '<p style="color:#666">Pas de donnees LLM pour cet event.</p>';
+          html += '<p style="color:#666">Pas de donnees LLM.</p>';
         }
 
         html += '<button id="verify-close" onclick="closeVerify()">Fermer</button>';
@@ -769,14 +1058,12 @@
       document.getElementById('verify-overlay').classList.remove('active');
     }
 
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeVerify();
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        closeVerify();
+        closeBet();
+      }
     });
   </script>
-
-  <!-- Verify overlay -->
-  <div id="verify-overlay" onclick="if(event.target===this)closeVerify()">
-    <div id="verify-modal"></div>
-  </div>
 </body>
 </html>

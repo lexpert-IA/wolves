@@ -48,12 +48,12 @@ export default function AgeVerification() {
       }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <img src="/betly-logo.png" alt="BETLY" style={{ height: 40 }} />
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 900, letterSpacing: 6, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>WOLVES</div>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#f8fafc', marginTop: 12, marginBottom: 6 }}>
             Avant de continuer
           </div>
           <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
-            Veuillez confirmer les points suivants pour accéder à BETLY.
+            Veuillez confirmer les points suivants pour accéder à WOLVES.
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export default function AgeVerification() {
             {
               key: 'age',
               text: 'J\'ai 18 ans ou plus',
-              sub: 'BETLY est strictement réservé aux majeurs.',
+              sub: 'WOLVES est strictement réservé aux majeurs.',
             },
             {
               key: 'geo',
@@ -110,7 +110,7 @@ export default function AgeVerification() {
             fontSize: 14, fontWeight: 700, transition: 'all .2s',
           }}
         >
-          {saving ? 'Enregistrement…' : 'Continuer sur BETLY →'}
+          {saving ? 'Enregistrement…' : 'Continuer sur WOLVES →'}
         </button>
 
         <div style={{ textAlign: 'center', fontSize: 11, color: '#334155', marginTop: 14 }}>

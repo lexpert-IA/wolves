@@ -47,7 +47,7 @@ export function BetlyLoaderFullPage({ text = 'Chargement...' }) {
         style={{ width: 90, height: 90, borderRadius: 20, objectFit: 'cover', display: 'block' }}
       >
         <source src="/betly-loader.mp4" type="video/mp4" />
-        <img src="/betly-icon.png" alt="BETLY" style={{ width: 90, height: 90, borderRadius: 20 }} />
+        <img src="/betly-icon.png" alt="WOLVES" style={{ width: 90, height: 90, borderRadius: 20 }} />
       </video>
       <div style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>{text}</div>
     </div>
@@ -85,7 +85,7 @@ export function BetlySplashScreen() {
           style={{ width: 110, height: 110, borderRadius: 26, objectFit: 'cover', display: 'block' }}
         >
           <source src="/betly-loader.mp4" type="video/mp4" />
-          <img src="/betly-icon.png" alt="BETLY" style={{ width: 110, height: 110, borderRadius: 26 }} />
+          <img src="/betly-icon.png" alt="WOLVES" style={{ width: 110, height: 110, borderRadius: 26 }} />
         </video>
       </div>
       <div style={{ textAlign: 'center', animation: 'bl-fadein 0.5s ease 0.3s both' }}>
@@ -94,7 +94,7 @@ export function BetlySplashScreen() {
           background: 'linear-gradient(135deg, #7c3aed, #a855f7, #c084fc)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           marginBottom: 14,
-        }}>BETLY</div>
+        }}>WOLVES</div>
         <div style={{ width: 160, height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
           <div style={{
             height: '100%', borderRadius: 99,

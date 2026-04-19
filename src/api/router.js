@@ -99,6 +99,19 @@ router.get('/matches/:id/live', async (req, res) => {
   }
 });
 
+// -- Markets for a match
+router.get('/matches/:id/markets', (req, res) => {
+  try {
+    const { getEngine } = require('../engine/matchEngine');
+    const engine = getEngine(req.params.id);
+    if (!engine) return res.status(404).json({ error: 'Match non trouvé ou terminé' });
+    res.json({ markets: engine._marketsSnapshot() });
+  } catch (err) {
+    logger.error(`GET /matches/:id/markets error: ${err.message}`);
+    res.status(500).json({ error: 'Internal error' });
+  }
+});
+
 // -- Raw event details (LLM transparency)
 router.get('/matches/:matchId/events/:eventId/raw', async (req, res) => {
   try {

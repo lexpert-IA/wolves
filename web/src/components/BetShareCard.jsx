@@ -34,7 +34,7 @@ function CardShell({ badge, category, children }) {
       <div style={{ position: 'relative', zIndex: 1 }}>
         {/* Header row */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <img src="/betly-logo.png" alt="BETLY" style={{ height: 20 }} />
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 900, letterSpacing: 3, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>WOLVES</span>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             {category && (
               <span style={{

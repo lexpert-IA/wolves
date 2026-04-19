@@ -8,7 +8,7 @@ import { computeAvatarColor } from '../hooks/useAuth';
 import CopyTradeButton from '../components/CopyTradeButton';
 import ShareButton from '../components/ShareButton';
 import { apiFetch } from '../lib/api';
-import WolvesLoader from '../components/BetlyLoader';
+import BetlyLoader from '../components/BetlyLoader';
 
 // ── Level config ──────────────────────────────────────────────────────────────
 const LEVELS = {
@@ -1190,7 +1190,7 @@ export default function Account() {
       )}
 
       {loading ? (
-        <WolvesLoader size={90} text="Chargement du compte..." />
+        <BetlyLoader size={90} text="Chargement du compte..." />
       ) : (
         <>
           {/* Stats grid */}
