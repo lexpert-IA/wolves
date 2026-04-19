@@ -1,16 +1,23 @@
 {
   "version": 2,
-  "buildCommand": "",
-  "installCommand": "npm install",
-  "outputDirectory": "web/dist",
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "../src/**,../db/**,../config/**,../index.js"
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "web/dist/**",
+          "web/public/**",
+          "src/**",
+          "db/**",
+          "config/**"
+        ]
+      }
     }
-  },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/__/auth/(.*)", "destination": "/api/index.js" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/index.js" },
+    { "src": "/__/auth/(.*)", "dest": "/index.js" },
+    { "src": "/(.*)", "dest": "/index.js" }
   ]
 }
