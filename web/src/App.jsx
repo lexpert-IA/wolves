@@ -134,7 +134,7 @@ function Footer({ isMobile }) {
             { label: 'Confidentialité', href: '/privacy' },
             { label: 'Jeu responsable', href: '/responsible-gaming' },
             { label: 'Mentions légales', href: '/legal' },
-            { label: 'Copy Trading', href: '/copy' },
+            { label: 'Créer', href: '/create' },
           ].map(({ label, href }) => (
             <a
               key={href}

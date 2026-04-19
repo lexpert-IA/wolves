@@ -1,28 +1,34 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
 
 /* ── SVG Icons ── */
-const MoonIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+const MoonIcon = ({ size = 40 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
   </svg>
 );
-const SkullIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+const SkullIcon = ({ size = 40 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="10" r="8"/><path d="M8 22h8"/><path d="M9 14l-1 8"/><path d="M15 14l1 8"/>
     <circle cx="9" cy="9" r="1.5" fill="currentColor"/><circle cx="15" cy="9" r="1.5" fill="currentColor"/>
   </svg>
 );
-const EyeOffIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+const EyeOffIcon = ({ size = 40 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
     <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
     <line x1="1" y1="1" x2="23" y2="23"/>
   </svg>
 );
-const BoltIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+const BoltIcon = ({ size = 40 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+);
+const LockIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0110 0v4"/>
   </svg>
 );
 const CopyIcon = () => (
@@ -44,25 +50,35 @@ const TrophyIcon = () => (
     <path d="M18 2H6v7a6 6 0 0012 0V2z"/>
   </svg>
 );
+const PlayIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <polygon points="5 3 19 12 5 21 5 3"/>
+  </svg>
+);
 
 /* ── Game modes ── */
 const GAME_MODES = [
   {
     id: 'pleine-lune',
     name: 'Pleine Lune',
-    desc: 'Classique',
+    tagline: 'Le classique',
+    desc: '2 loups infiltres parmi 6 villageois. Debats, votes, elimination. Le mode originel.',
     players: 8,
     wolves: 2,
+    duration: '~15 min',
     color: '#7c3aed',
     icon: MoonIcon,
     available: true,
+    popular: true,
   },
   {
     id: 'village-maudit',
     name: 'Village Maudit',
-    desc: 'Chaos',
+    tagline: 'Le chaos',
+    desc: '3 loups, 5 villageois. Roles speciaux, retournements de situation. Chaos garanti.',
     players: 8,
     wolves: 3,
+    duration: '~20 min',
     color: '#2563eb',
     icon: SkullIcon,
     available: false,
@@ -70,9 +86,11 @@ const GAME_MODES = [
   {
     id: 'nuit-noire',
     name: 'Nuit Noire',
-    desc: 'Hardcore, votes aveugles',
+    tagline: 'Hardcore',
+    desc: 'Votes aveugles — personne ne voit qui vote pour qui. La paranoia a l\'etat pur.',
     players: 8,
     wolves: 2,
+    duration: '~18 min',
     color: '#dc2626',
     icon: EyeOffIcon,
     available: false,
@@ -80,21 +98,23 @@ const GAME_MODES = [
   {
     id: 'wolf-hunt',
     name: 'Wolf Hunt',
-    desc: 'Rapide, 3 min',
+    tagline: 'Speed run',
+    desc: '4 joueurs, 1 loup, 3 minutes. Pas le temps de reflechir. Instinct pur.',
     players: 4,
     wolves: 1,
+    duration: '~3 min',
     color: '#f59e0b',
     icon: BoltIcon,
     available: false,
-    badge: 'GAME CHANGER',
+    badge: 'BIENTOT',
   },
 ];
 
 /* ── Fake lobbies ── */
 const FAKE_LOBBIES = [
-  { id: 1, mode: 'Pleine Lune', color: '#7c3aed', host: 'wolf_hunter42', current: 5, max: 8 },
-  { id: 2, mode: 'Pleine Lune', color: '#7c3aed', host: 'crypto_moon', current: 3, max: 8 },
-  { id: 3, mode: 'Pleine Lune', color: '#7c3aed', host: 'night_owl', current: 7, max: 8 },
+  { id: 1, mode: 'Pleine Lune', color: '#7c3aed', host: 'wolf_hunter42', current: 5, max: 8, bet: 10 },
+  { id: 2, mode: 'Pleine Lune', color: '#7c3aed', host: 'crypto_moon', current: 3, max: 8, bet: 25 },
+  { id: 3, mode: 'Pleine Lune', color: '#7c3aed', host: 'night_owl', current: 7, max: 8, bet: 5 },
 ];
 
 function generateCode() {
@@ -104,99 +124,163 @@ function generateCode() {
   return code;
 }
 
-/* ── Mode Card ── */
+/* ── Animated online count ── */
+function useAnimatedCount(target, duration = 600) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    let start = 0;
+    const step = () => {
+      start += Math.ceil(target / (duration / 16));
+      if (start >= target) { setCount(target); return; }
+      setCount(start);
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target]);
+  return count;
+}
+
+/* ── Mode Card — Stake style ── */
 function ModeCard({ mode, selected, onSelect, isMobile }) {
   const isSelected = selected === mode.id;
   const disabled = !mode.available;
+  const [hovered, setHovered] = useState(false);
 
   return (
     <button
       onClick={() => mode.available && onSelect(mode.id)}
       disabled={disabled}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         position: 'relative',
-        border: isSelected ? `2px solid ${mode.color}` : '2px solid transparent',
-        borderRadius: 14,
-        background: `linear-gradient(145deg, ${mode.color}18, ${mode.color}08)`,
-        padding: isMobile ? 16 : 20,
+        border: isSelected ? `2px solid ${mode.color}` : '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 16,
+        background: isSelected
+          ? `${mode.color}12`
+          : hovered && !disabled ? 'rgba(255,255,255,0.04)' : 'var(--bg-secondary)',
+        padding: 0,
         cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
-        transition: 'all 0.25s ease',
+        transition: 'all 0.2s ease',
         textAlign: 'left',
         width: '100%',
         outline: 'none',
-        boxShadow: isSelected ? `0 0 20px ${mode.color}33` : 'none',
-      }}
-      onMouseEnter={e => {
-        if (!disabled) e.currentTarget.style.background = `linear-gradient(145deg, ${mode.color}28, ${mode.color}12)`;
-      }}
-      onMouseLeave={e => {
-        if (!disabled) e.currentTarget.style.background = `linear-gradient(145deg, ${mode.color}18, ${mode.color}08)`;
+        overflow: 'hidden',
+        filter: disabled ? 'grayscale(0.6)' : 'none',
+        opacity: disabled ? 0.55 : 1,
       }}
     >
-      {/* Radio indicator */}
+      {/* Top colored bar */}
       <div style={{
-        position: 'absolute', top: 12, right: 12,
-        width: 20, height: 20, borderRadius: '50%',
-        border: `2px solid ${isSelected ? mode.color : 'var(--text-tertiary)'}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        {isSelected && (
-          <div style={{ width: 10, height: 10, borderRadius: '50%', background: mode.color }} />
-        )}
-      </div>
+        height: 3,
+        background: mode.color,
+        opacity: isSelected ? 1 : 0.4,
+        transition: 'opacity 0.2s',
+      }} />
 
-      {/* Badge */}
-      {mode.badge && (
-        <div style={{
-          position: 'absolute', top: -1, left: 16,
-          background: mode.color, color: '#000', fontWeight: 800,
-          fontSize: 9, padding: '2px 8px', borderRadius: '0 0 6px 6px',
-          letterSpacing: '0.5px', textTransform: 'uppercase',
-        }}>
-          {mode.badge}
+      <div style={{ padding: isMobile ? '16px 14px' : '20px 18px' }}>
+        {/* Icon + title row */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 12 }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: 12, flexShrink: 0,
+            background: `${mode.color}18`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: mode.color,
+          }}>
+            {disabled ? <LockIcon size={24} /> : <mode.icon size={28} />}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{
+                fontFamily: "'Orbitron', sans-serif", fontWeight: 700,
+                fontSize: 15, color: 'var(--text-primary)',
+              }}>
+                {mode.name}
+              </span>
+              {mode.popular && (
+                <span style={{
+                  fontSize: 9, fontWeight: 800, padding: '2px 7px',
+                  borderRadius: 4, background: '#22c55e22', color: '#22c55e',
+                  letterSpacing: '0.5px',
+                }}>
+                  POPULAIRE
+                </span>
+              )}
+              {mode.badge && (
+                <span style={{
+                  fontSize: 9, fontWeight: 800, padding: '2px 7px',
+                  borderRadius: 4, background: `${mode.color}22`, color: mode.color,
+                  letterSpacing: '0.5px',
+                }}>
+                  {mode.badge}
+                </span>
+              )}
+            </div>
+            <span style={{
+              fontSize: 12, color: mode.color, fontWeight: 600, opacity: 0.8,
+            }}>
+              {mode.tagline}
+            </span>
+          </div>
+
+          {/* Radio */}
+          {mode.available && (
+            <div style={{
+              width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+              border: `2px solid ${isSelected ? mode.color : 'rgba(255,255,255,0.15)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}>
+              {isSelected && (
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: mode.color }} />
+              )}
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Coming soon badge */}
-      {!mode.available && (
-        <div style={{
-          position: 'absolute', top: -1, left: 16,
-          background: 'var(--text-tertiary)', color: 'var(--bg-primary)',
-          fontWeight: 700, fontSize: 9, padding: '2px 8px',
-          borderRadius: '0 0 6px 6px', letterSpacing: '0.5px',
+        {/* Description */}
+        <p style={{
+          fontSize: 12, color: 'var(--text-tertiary)', margin: '0 0 12px 0',
+          lineHeight: 1.5,
         }}>
-          COMING SOON
-        </div>
-      )}
+          {mode.desc}
+        </p>
 
-      <div style={{ color: mode.color, marginBottom: 10 }}>
-        <mode.icon />
-      </div>
-      <div style={{
-        fontFamily: "'Orbitron', sans-serif", fontWeight: 700,
-        fontSize: 16, color: 'var(--text-primary)', marginBottom: 4,
-      }}>
-        {mode.name}
-      </div>
-      <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>
-        {mode.desc}
-      </div>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        fontSize: 12, color: 'var(--text-tertiary)',
-      }}>
-        <UsersIcon size={14} />
-        <span>{mode.players} joueurs</span>
-        <span style={{ margin: '0 4px', opacity: 0.4 }}>|</span>
-        <span>{mode.wolves} loup{mode.wolves > 1 ? 's' : ''}</span>
+        {/* Stats row */}
+        <div style={{
+          display: 'flex', gap: 12, fontSize: 11, color: 'var(--text-tertiary)',
+        }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 8px', borderRadius: 6,
+            background: 'rgba(255,255,255,0.04)',
+          }}>
+            <UsersIcon size={12} />
+            <span>{mode.players} joueurs</span>
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 8px', borderRadius: 6,
+            background: 'rgba(255,255,255,0.04)',
+          }}>
+            <span style={{ color: '#ef4444' }}>🐺</span>
+            <span>{mode.wolves} loup{mode.wolves > 1 ? 's' : ''}</span>
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 8px', borderRadius: 6,
+            background: 'rgba(255,255,255,0.04)',
+          }}>
+            <span>{mode.duration}</span>
+          </div>
+        </div>
       </div>
     </button>
   );
 }
 
 /* ── Config Panel ── */
-function ConfigPanel({ isMobile }) {
+function ConfigPanel({ isMobile, selectedMode }) {
   const [playerCount, setPlayerCount] = useState(8);
   const [minBet, setMinBet] = useState('10');
   const [isPrivate, setIsPrivate] = useState(true);
@@ -205,6 +289,7 @@ function ConfigPanel({ isMobile }) {
   const [showMessage, setShowMessage] = useState(false);
 
   const inviteCode = useMemo(() => generateCode(), []);
+  const mode = GAME_MODES.find(m => m.id === selectedMode);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteCode).catch(() => {});
@@ -218,182 +303,248 @@ function ConfigPanel({ isMobile }) {
   };
 
   const playerOptions = [4, 6, 8];
-
-  const labelStyle = {
-    fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)',
-    marginBottom: 8, display: 'block',
-  };
-
-  const rowStyle = {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '14px 0',
-    borderBottom: '1px solid var(--border-primary)',
-  };
+  const betPresets = [5, 10, 25, 50];
 
   return (
     <div style={{
       background: 'var(--bg-secondary)',
-      borderRadius: 14,
-      padding: isMobile ? 16 : 24,
-      border: '1px solid var(--border-primary)',
+      borderRadius: 16,
+      border: '1px solid rgba(255,255,255,0.08)',
+      overflow: 'hidden',
     }}>
-      <h3 style={{
-        fontFamily: "'Orbitron', sans-serif", fontWeight: 700,
-        fontSize: 16, color: 'var(--text-primary)', margin: '0 0 20px 0',
+      {/* Header with mode info */}
+      <div style={{
+        padding: '16px 20px',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex', alignItems: 'center', gap: 12,
       }}>
-        Configuration
-      </h3>
-
-      {/* Player count */}
-      <div style={rowStyle}>
-        <span style={labelStyle}>Nombre de joueurs</span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          {playerOptions.map(n => (
-            <button
-              key={n}
-              onClick={() => setPlayerCount(n)}
-              style={{
-                width: 40, height: 36, borderRadius: 8,
-                border: playerCount === n ? '2px solid #7c3aed' : '1px solid var(--border-primary)',
-                background: playerCount === n ? '#7c3aed22' : 'var(--bg-tertiary)',
-                color: playerCount === n ? '#7c3aed' : 'var(--text-secondary)',
-                fontWeight: 700, fontSize: 14, cursor: 'pointer',
-              }}
-            >
-              {n}
-            </button>
-          ))}
+        <div style={{
+          width: 36, height: 36, borderRadius: 10,
+          background: `${mode?.color || '#7c3aed'}18`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: mode?.color || '#7c3aed',
+        }}>
+          {mode && <mode.icon size={20} />}
+        </div>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
+            {mode?.name || 'Configuration'}
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+            Configure les regles de ta partie
+          </div>
         </div>
       </div>
 
-      {/* Min bet */}
-      <div style={rowStyle}>
-        <span style={labelStyle}>Mise minimum (W$)</span>
-        <input
-          type="number"
-          value={minBet}
-          onChange={e => setMinBet(e.target.value)}
-          style={{
-            width: 90, padding: '8px 12px', borderRadius: 8,
-            border: '1px solid var(--border-primary)',
-            background: 'var(--bg-tertiary)', color: 'var(--text-primary)',
-            fontSize: 14, fontWeight: 600, textAlign: 'right',
-            outline: 'none',
-          }}
-          min="1"
-        />
-      </div>
-
-      {/* Private toggle */}
-      <div style={rowStyle}>
-        <span style={labelStyle}>Partie privee</span>
-        <button
-          onClick={() => setIsPrivate(!isPrivate)}
-          style={{
-            width: 48, height: 26, borderRadius: 13, border: 'none',
-            background: isPrivate ? '#7c3aed' : 'var(--bg-tertiary)',
-            cursor: 'pointer', position: 'relative', transition: 'background 0.2s',
-          }}
-        >
+      <div style={{ padding: isMobile ? '16px' : '20px' }}>
+        {/* Player count */}
+        <div style={{ marginBottom: 20 }}>
           <div style={{
-            width: 20, height: 20, borderRadius: '50%', background: '#fff',
-            position: 'absolute', top: 3,
-            left: isPrivate ? 25 : 3,
-            transition: 'left 0.2s',
-          }} />
-        </button>
-      </div>
+            fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)',
+            marginBottom: 10,
+          }}>
+            Nombre de joueurs
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {playerOptions.map(n => (
+              <button
+                key={n}
+                onClick={() => setPlayerCount(n)}
+                style={{
+                  flex: 1, height: 40, borderRadius: 10,
+                  border: playerCount === n ? '2px solid #7c3aed' : '1px solid rgba(255,255,255,0.08)',
+                  background: playerCount === n ? '#7c3aed15' : 'transparent',
+                  color: playerCount === n ? '#a78bfa' : 'var(--text-tertiary)',
+                  fontWeight: 700, fontSize: 15, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      {/* Invite code */}
-      {isPrivate && (
-        <div style={{ ...rowStyle, flexWrap: 'wrap', gap: 8 }}>
-          <span style={labelStyle}>Code d'invitation</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              padding: '8px 14px', borderRadius: 8,
-              background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)',
-              fontFamily: 'monospace', fontSize: 16, fontWeight: 700,
-              color: '#7c3aed', letterSpacing: '2px',
+        {/* Min bet with presets */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            marginBottom: 10,
+          }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>
+              Mise minimum
+            </span>
+            <span style={{
+              fontSize: 14, fontWeight: 800, color: '#a78bfa',
+              fontFamily: "'Orbitron', sans-serif",
             }}>
-              {inviteCode}
+              {minBet} W$
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {betPresets.map(a => (
+              <button
+                key={a}
+                onClick={() => setMinBet(String(a))}
+                style={{
+                  flex: 1, padding: '8px 0', borderRadius: 8,
+                  border: String(minBet) === String(a) ? '1px solid #7c3aed' : '1px solid rgba(255,255,255,0.08)',
+                  background: String(minBet) === String(a) ? '#7c3aed15' : 'transparent',
+                  color: String(minBet) === String(a) ? '#a78bfa' : 'var(--text-tertiary)',
+                  fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {a}$
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Toggles */}
+        <div style={{
+          display: 'flex', flexDirection: 'column', gap: 0,
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: 12, overflow: 'hidden',
+        }}>
+          {/* Private toggle */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '14px 16px',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+          }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                Partie privee
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>
+                Accessible uniquement par code
+              </div>
             </div>
             <button
-              onClick={handleCopy}
+              onClick={() => setIsPrivate(!isPrivate)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 4,
-                padding: '8px 12px', borderRadius: 8, border: 'none',
-                background: copied ? '#059669' : 'var(--bg-tertiary)',
-                color: copied ? '#fff' : 'var(--text-secondary)',
-                cursor: 'pointer', fontSize: 12, fontWeight: 600,
-                transition: 'all 0.2s',
+                width: 44, height: 24, borderRadius: 12, border: 'none',
+                background: isPrivate ? '#7c3aed' : 'rgba(255,255,255,0.1)',
+                cursor: 'pointer', position: 'relative', transition: 'background 0.2s',
+                flexShrink: 0,
               }}
             >
-              <CopyIcon />
-              {copied ? 'Copie !' : 'Copier'}
+              <div style={{
+                width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                position: 'absolute', top: 3,
+                left: isPrivate ? 23 : 3,
+                transition: 'left 0.2s',
+              }} />
+            </button>
+          </div>
+
+          {/* Survivor pool */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '14px 16px',
+          }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                  Survivor Pool
+                </span>
+                <span style={{
+                  fontSize: 8, fontWeight: 800, padding: '1px 5px',
+                  borderRadius: 3, background: '#f59e0b22', color: '#f59e0b',
+                }}>
+                  NEW
+                </span>
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2, maxWidth: 200 }}>
+                Le meilleur predicteur rafle tout le pot
+              </div>
+            </div>
+            <button
+              onClick={() => setSurvivorPool(!survivorPool)}
+              style={{
+                width: 44, height: 24, borderRadius: 12, border: 'none',
+                background: survivorPool ? '#7c3aed' : 'rgba(255,255,255,0.1)',
+                cursor: 'pointer', position: 'relative', transition: 'background 0.2s',
+                flexShrink: 0,
+              }}
+            >
+              <div style={{
+                width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                position: 'absolute', top: 3,
+                left: survivorPool ? 23 : 3,
+                transition: 'left 0.2s',
+              }} />
             </button>
           </div>
         </div>
-      )}
 
-      {/* Survivor pool */}
-      <div style={{ ...rowStyle, borderBottom: 'none' }}>
-        <div>
-          <span style={{ ...labelStyle, marginBottom: 2 }}>Survivor Pool</span>
-          <div style={{ fontSize: 11, color: 'var(--text-tertiary)', maxWidth: 220 }}>
-            Le gagnant rafle tout. Les mises vont dans un pot, le meilleur predicteur gagne.
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{
-            fontSize: 9, fontWeight: 800, color: '#f59e0b',
-            letterSpacing: '0.5px', textTransform: 'uppercase',
+        {/* Invite code */}
+        {isPrivate && (
+          <div style={{
+            marginTop: 16, padding: '14px 16px', borderRadius: 12,
+            background: 'rgba(124,58,237,0.06)',
+            border: '1px solid rgba(124,58,237,0.15)',
           }}>
-            GAME CHANGER
-          </span>
-          <button
-            onClick={() => setSurvivorPool(!survivorPool)}
-            style={{
-              width: 48, height: 26, borderRadius: 13, border: 'none',
-              background: survivorPool ? '#7c3aed' : 'var(--bg-tertiary)',
-              cursor: 'pointer', position: 'relative', transition: 'background 0.2s',
-            }}
-          >
-            <div style={{
-              width: 20, height: 20, borderRadius: '50%', background: '#fff',
-              position: 'absolute', top: 3,
-              left: survivorPool ? 25 : 3,
-              transition: 'left 0.2s',
-            }} />
-          </button>
-        </div>
+            <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 8 }}>
+              Code d'invitation
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                flex: 1, padding: '8px 12px', borderRadius: 8,
+                background: 'rgba(0,0,0,0.3)',
+                fontFamily: "'Orbitron', monospace", fontSize: 18, fontWeight: 800,
+                color: '#a78bfa', letterSpacing: '4px', textAlign: 'center',
+              }}>
+                {inviteCode}
+              </div>
+              <button
+                onClick={handleCopy}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '10px 14px', borderRadius: 8, border: 'none',
+                  background: copied ? '#059669' : 'rgba(255,255,255,0.08)',
+                  color: copied ? '#fff' : 'var(--text-secondary)',
+                  cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                  transition: 'all 0.2s',
+                }}
+              >
+                <CopyIcon />
+                {copied ? 'OK!' : 'Copier'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* CTA */}
+        <button
+          onClick={handleCreate}
+          style={{
+            width: '100%', marginTop: 20, padding: '14px 0',
+            borderRadius: 12, border: 'none',
+            background: '#7c3aed',
+            color: '#fff', fontFamily: "'Orbitron', sans-serif",
+            fontWeight: 700, fontSize: 14, cursor: 'pointer',
+            transition: 'opacity 0.2s',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
+          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+        >
+          <PlayIcon size={16} />
+          Lancer la partie
+        </button>
+
+        {showMessage && (
+          <div style={{
+            marginTop: 12, padding: '10px 14px', borderRadius: 8,
+            background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)',
+            fontSize: 12, color: '#a78bfa', textAlign: 'center',
+          }}>
+            Connexion backend requise — bientot disponible
+          </div>
+        )}
       </div>
-
-      {/* CTA */}
-      <button
-        onClick={handleCreate}
-        style={{
-          width: '100%', marginTop: 20, padding: '14px 0',
-          borderRadius: 10, border: 'none',
-          background: '#7c3aed',
-          color: '#fff', fontFamily: "'Orbitron', sans-serif",
-          fontWeight: 700, fontSize: 15, cursor: 'pointer',
-          transition: 'opacity 0.2s',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-        onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
-      >
-        Creer la partie
-      </button>
-
-      {showMessage && (
-        <div style={{
-          marginTop: 12, padding: '10px 14px', borderRadius: 8,
-          background: '#7c3aed18', border: '1px solid #7c3aed44',
-          fontSize: 13, color: '#a78bfa', textAlign: 'center',
-        }}>
-          Fonctionnalite en cours de developpement
-        </div>
-      )}
     </div>
   );
 }
@@ -401,44 +552,59 @@ function ConfigPanel({ isMobile }) {
 /* ── Lobby Card ── */
 function LobbyCard({ lobby }) {
   const fillPercent = (lobby.current / lobby.max) * 100;
+  const isFull = lobby.current >= lobby.max - 1;
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 14,
-      padding: '12px 16px', borderRadius: 10,
-      background: 'var(--bg-secondary)',
-      border: '1px solid var(--border-primary)',
-      transition: 'border-color 0.2s',
-    }}
-    onMouseEnter={e => { e.currentTarget.style.borderColor = '#7c3aed44'; }}
-    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-primary)'; }}
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 14,
+        padding: '14px 16px', borderRadius: 12,
+        background: hovered ? 'rgba(255,255,255,0.03)' : 'var(--bg-secondary)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        transition: 'all 0.15s', cursor: 'pointer',
+      }}
     >
-      {/* Mode dot */}
+      {/* Mode indicator */}
       <div style={{
-        width: 36, height: 36, borderRadius: 8,
-        background: `linear-gradient(135deg, ${lobby.color}, ${lobby.color}88)`,
+        width: 40, height: 40, borderRadius: 10,
+        background: `${lobby.color}18`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
+        color: lobby.color, flexShrink: 0,
       }}>
-        <MoonIcon />
+        <MoonIcon size={22} />
       </div>
 
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>
-          {lobby.mode}
-          <span style={{ color: 'var(--text-tertiary)', fontWeight: 400, marginLeft: 8, fontSize: 12 }}>
-            par {lobby.host}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6,
+        }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+            {lobby.host}
           </span>
+          <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+            · {lobby.bet}W$
+          </span>
+          {isFull && (
+            <span style={{
+              fontSize: 9, fontWeight: 700, padding: '1px 6px',
+              borderRadius: 3, background: '#f59e0b22', color: '#f59e0b',
+            }}>
+              PRESQUE PLEIN
+            </span>
+          )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{
-            flex: 1, height: 4, borderRadius: 2, background: 'var(--bg-tertiary)',
-            maxWidth: 100,
+            flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)',
+            maxWidth: 120,
           }}>
             <div style={{
               width: `${fillPercent}%`, height: '100%', borderRadius: 2,
-              background: fillPercent >= 80 ? '#f59e0b' : '#7c3aed',
+              background: isFull ? '#f59e0b' : lobby.color,
               transition: 'width 0.3s',
             }} />
           </div>
@@ -450,16 +616,52 @@ function LobbyCard({ lobby }) {
 
       {/* Join button */}
       <button style={{
-        padding: '6px 14px', borderRadius: 8, border: 'none',
-        background: '#7c3aed22', color: '#a78bfa',
+        padding: '7px 16px', borderRadius: 8, border: 'none',
+        background: hovered ? lobby.color : `${lobby.color}22`,
+        color: hovered ? '#fff' : '#a78bfa',
         fontWeight: 700, fontSize: 12, cursor: 'pointer',
-        transition: 'all 0.2s', flexShrink: 0,
-      }}
-      onMouseEnter={e => { e.currentTarget.style.background = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
-      onMouseLeave={e => { e.currentTarget.style.background = '#7c3aed22'; e.currentTarget.style.color = '#a78bfa'; }}
-      >
+        transition: 'all 0.15s', flexShrink: 0,
+      }}>
         Rejoindre
       </button>
+    </div>
+  );
+}
+
+/* ── Live Stats Banner ── */
+function LiveStatsBanner() {
+  const onlinePlayers = useAnimatedCount(47);
+  const activeLobby = useAnimatedCount(3);
+
+  return (
+    <div style={{
+      display: 'flex', gap: 16, marginBottom: 24,
+      flexWrap: 'wrap',
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '8px 14px', borderRadius: 10,
+        background: 'rgba(34,197,94,0.08)',
+        border: '1px solid rgba(34,197,94,0.15)',
+      }}>
+        <div style={{
+          width: 8, height: 8, borderRadius: '50%', background: '#22c55e',
+          boxShadow: '0 0 6px #22c55e',
+        }} />
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#22c55e' }}>
+          {onlinePlayers} en ligne
+        </span>
+      </div>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '8px 14px', borderRadius: 10,
+        background: 'rgba(124,58,237,0.08)',
+        border: '1px solid rgba(124,58,237,0.15)',
+      }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#a78bfa' }}>
+          {activeLobby} parties en cours
+        </span>
+      </div>
     </div>
   );
 }
@@ -473,55 +675,54 @@ export default function CreateGame() {
     <div style={{
       minHeight: '100vh',
       background: 'var(--bg-primary)',
-      padding: isMobile ? '24px 16px' : '40px 32px',
+      padding: isMobile ? '20px 16px' : '32px 24px',
       maxWidth: 1100,
       margin: '0 auto',
     }}>
       {/* Header */}
-      <div style={{ marginBottom: 32 }}>
+      <div style={{ marginBottom: 8 }}>
         <h1 style={{
           fontFamily: "'Orbitron', sans-serif",
-          fontSize: isMobile ? 24 : 32,
+          fontSize: isMobile ? 22 : 28,
           fontWeight: 800,
-          color: 'var(--text-primary)',
-          margin: '0 0 8px 0',
           color: '#fff',
+          margin: '0 0 6px 0',
         }}>
           Creer une partie
         </h1>
         <p style={{
-          fontSize: 14, color: 'var(--text-secondary)',
-          margin: 0, lineHeight: 1.5, maxWidth: 520,
+          fontSize: 13, color: 'var(--text-tertiary)',
+          margin: '0 0 20px 0', lineHeight: 1.5,
         }}>
-          Invite tes amis et jouez ensemble. Choisis le mode, configure les regles, et lance la partie.
+          Choisis ton mode, configure les regles et invite tes amis.
         </p>
       </div>
+
+      {/* Live stats */}
+      <LiveStatsBanner />
 
       {/* Main layout */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '1fr 360px',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 340px',
         gap: 24,
         alignItems: 'start',
       }}>
-        {/* Left column */}
+        {/* Left column — mode selection */}
         <div>
-          {/* Mode selector */}
-          <h2 style={{
-            fontFamily: "'Orbitron', sans-serif",
-            fontSize: 14, fontWeight: 700,
+          <div style={{
+            fontSize: 11, fontWeight: 700,
             color: 'var(--text-tertiary)',
-            textTransform: 'uppercase', letterSpacing: '1px',
-            margin: '0 0 16px 0',
+            textTransform: 'uppercase', letterSpacing: '1.5px',
+            marginBottom: 14,
           }}>
-            Choisis ton mode
-          </h2>
+            Mode de jeu
+          </div>
 
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            gap: 12,
-            marginBottom: 28,
+            display: 'flex', flexDirection: 'column',
+            gap: 10,
+            marginBottom: 24,
           }}>
             {GAME_MODES.map(mode => (
               <ModeCard
@@ -534,43 +735,75 @@ export default function CreateGame() {
             ))}
           </div>
 
-          {/* Config panel — only when mode selected */}
-          {selectedMode && <ConfigPanel isMobile={isMobile} />}
+          {/* Config panel — appears when mode selected */}
+          {selectedMode && <ConfigPanel isMobile={isMobile} selectedMode={selectedMode} />}
         </div>
 
-        {/* Right column / bottom on mobile — Lobbies */}
+        {/* Right column — Lobbies */}
         <div>
           <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            marginBottom: 16,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginBottom: 14,
           }}>
-            <TrophyIcon />
-            <h2 style={{
-              fontFamily: "'Orbitron', sans-serif",
-              fontSize: 14, fontWeight: 700,
+            <div style={{
+              fontSize: 11, fontWeight: 700,
               color: 'var(--text-tertiary)',
-              textTransform: 'uppercase', letterSpacing: '1px',
-              margin: 0,
+              textTransform: 'uppercase', letterSpacing: '1.5px',
+              display: 'flex', alignItems: 'center', gap: 8,
             }}>
+              <TrophyIcon />
               Parties en attente
-            </h2>
+            </div>
+            <span style={{
+              fontSize: 11, color: 'var(--text-tertiary)',
+              fontWeight: 600,
+            }}>
+              {FAKE_LOBBIES.length} lobby{FAKE_LOBBIES.length > 1 ? 's' : ''}
+            </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {FAKE_LOBBIES.map(lobby => (
               <LobbyCard key={lobby.id} lobby={lobby} />
             ))}
           </div>
 
-          {/* Empty state hint */}
+          {/* How it works */}
           <div style={{
-            marginTop: 16, padding: '12px 16px', borderRadius: 10,
+            marginTop: 16, padding: '16px', borderRadius: 12,
             background: 'var(--bg-secondary)',
-            border: '1px dashed var(--border-primary)',
-            fontSize: 12, color: 'var(--text-tertiary)',
-            textAlign: 'center', lineHeight: 1.5,
+            border: '1px solid rgba(255,255,255,0.06)',
           }}>
-            Cree ta propre partie ou rejoins un lobby. Les parties se lancent automatiquement quand le lobby est plein.
+            <div style={{
+              fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)',
+              marginBottom: 12,
+            }}>
+              Comment ca marche
+            </div>
+            {[
+              { step: '1', text: 'Choisis un mode de jeu' },
+              { step: '2', text: 'Configure et cree ta partie' },
+              { step: '3', text: 'Partage le code a tes amis' },
+              { step: '4', text: 'La partie demarre quand le lobby est plein' },
+            ].map(({ step, text }) => (
+              <div key={step} style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                marginBottom: 8,
+              }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: 6,
+                  background: '#7c3aed15',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 800, color: '#7c3aed',
+                  flexShrink: 0,
+                }}>
+                  {step}
+                </div>
+                <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+                  {text}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
