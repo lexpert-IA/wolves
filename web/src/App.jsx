@@ -27,6 +27,12 @@ import LegalPage from './pages/LegalPage';
 import PositionsPage from './pages/PositionsPage';
 import AgeVerification from './components/AgeVerification';
 import { BetlyLoaderFullPage, BetlySplashScreen } from './components/BetlyLoader';
+import PleineLune from './pages/games/PleineLune';
+import VillageMaudit from './pages/games/VillageMaudit';
+import NuitNoire from './pages/games/NuitNoire';
+import MeuteAlpha from './pages/games/MeuteAlpha';
+import LobbyPage from './pages/games/LobbyPage';
+import CreateGame from './pages/CreateGame';
 
 const DYNAMIC_ENV_ID = (import.meta.env.VITE_DYNAMIC_ENV_ID || '043ee6c8-bac8-4266-8345-794bb7a378a7').trim();
 
@@ -173,6 +179,12 @@ function getPage() {
   if (path === '/responsible-gaming') return 'responsible-gaming';
   if (path === '/legal') return 'legal';
   if (path === '/positions') return 'positions';
+  if (path === '/create') return 'create';
+  if (path === '/game/pleine-lune') return 'pleine-lune';
+  if (path === '/game/village-maudit') return 'village-maudit';
+  if (path === '/game/nuit-noire') return 'nuit-noire';
+  if (path === '/game/meute-alpha') return 'meute-alpha';
+  if (path.startsWith('/lobby/')) return 'lobby';
   if (path.startsWith('/profile/')) return 'profile';
   if (path.startsWith('/market/')) return 'market';
   return 'home';
@@ -270,6 +282,12 @@ function AppInner({ walletDisabled = false }) {
             {page === 'responsible-gaming'  && <ResponsibleGamingPage />}
             {page === 'legal'               && <LegalPage />}
             {page === 'positions'           && <AuthGuard><PositionsPage /></AuthGuard>}
+            {page === 'create'             && <CreateGame />}
+            {page === 'pleine-lune'        && <PleineLune />}
+            {page === 'village-maudit'     && <VillageMaudit />}
+            {page === 'nuit-noire'         && <NuitNoire />}
+            {page === 'meute-alpha'        && <MeuteAlpha />}
+            {page === 'lobby'              && <LobbyPage />}
           </PageErrorBoundary>
         </main>
 

@@ -3,10 +3,10 @@ import { useIsMobile } from '../hooks/useIsMobile';
 
 // Fake game data — like Stake's "Trending Games"
 const GAMES = [
-  { id: 1, name: 'Pleine Lune', players: 8, live: 12, img: null, color: '#7c3aed' },
-  { id: 2, name: 'Village Maudit', players: 8, live: 8, img: null, color: '#2563eb' },
-  { id: 3, name: 'Nuit Noire', players: 8, live: 23, img: null, color: '#dc2626' },
-  { id: 4, name: 'Meute Alpha', players: 8, live: 31, img: null, color: '#059669' },
+  { id: 1, name: 'Pleine Lune', players: 8, live: 12, img: null, color: '#7c3aed', slug: '/game/pleine-lune' },
+  { id: 2, name: 'Village Maudit', players: 8, live: 8, img: null, color: '#2563eb', slug: '/game/village-maudit' },
+  { id: 3, name: 'Nuit Noire', players: 8, live: 23, img: null, color: '#dc2626', slug: '/game/nuit-noire' },
+  { id: 4, name: 'Meute Alpha', players: 8, live: 31, img: null, color: '#059669', slug: '/game/meute-alpha' },
 ];
 
 const RECENT_BETS = [
@@ -27,7 +27,7 @@ const FEATURES = [
 
 function GameCard({ game }) {
   return (
-    <a href="/live" style={{
+    <a href={game.slug} style={{
       display: 'block', textDecoration: 'none',
       borderRadius: 12, overflow: 'hidden',
       transition: 'transform 0.2s, box-shadow 0.2s',
@@ -216,7 +216,7 @@ export default function HomePage() {
               </svg>
               Jouer maintenant
             </a>
-            <a href="/copy" style={{
+            <a href="/create" style={{
               padding: '12px 28px', fontSize: 14, fontWeight: 500,
               background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)',
               borderRadius: 8, color: '#fff', textDecoration: 'none', display: 'inline-flex',
@@ -226,9 +226,9 @@ export default function HomePage() {
             onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
-              Copy Trading
+              Créer une partie
             </a>
           </div>
         </div>
