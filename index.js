@@ -67,14 +67,15 @@ app.get('/__/auth/*', (req, res) => {
 const PUBLIC = path.join(__dirname, 'web', 'public');
 app.use(express.static(PUBLIC));
 
-// -- Serve React frontend (built by Vite into web/dist/)
+// -- Serve React frontend (built by Vite into web/dist/) — only if dist exists
+const fs = require('fs');
 const DIST = path.join(__dirname, 'web', 'dist');
-app.use(express.static(DIST));
-
-// -- SPA fallback
-app.get('*', (req, res) => {
-  res.sendFile(path.join(DIST, 'index.html'));
-});
+if (fs.existsSync(path.join(DIST, 'index.html'))) {
+  app.use(express.static(DIST));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(DIST, 'index.html'));
+  });
+}
 
 // -- Export for Vercel serverless
 module.exports = app;
