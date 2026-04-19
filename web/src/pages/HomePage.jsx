@@ -1,149 +1,145 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
-
-// Fake game data — like Stake's "Trending Games"
-const GAMES = [
-  { id: 1, name: 'Pleine Lune', players: 8, live: 12, img: null, color: '#7c3aed', slug: '/game/pleine-lune' },
-  { id: 2, name: 'Village Maudit', players: 8, live: 8, img: null, color: '#2563eb', slug: '/game/village-maudit' },
-  { id: 3, name: 'Nuit Noire', players: 8, live: 23, img: null, color: '#dc2626', slug: '/game/nuit-noire' },
-  { id: 4, name: 'Meute Alpha', players: 8, live: 31, img: null, color: '#059669', slug: '/game/meute-alpha' },
-];
+import { useAuth } from '../hooks/useAuth';
 
 const RECENT_BETS = [
   { game: 'Pleine Lune', user: 'wolf_h***', time: '11:08', amount: 120, side: 'Loups', odds: '2.4x', payout: 288, won: true },
-  { game: 'Village Maudit', user: 'cry***o', time: '11:07', amount: 50, side: 'Village', odds: '1.8x', payout: 90, won: true },
+  { game: 'Flappy Bird IA', user: 'cry***o', time: '11:07', amount: 50, side: 'Bot Alpha', odds: '1.8x', payout: 90, won: true },
   { game: 'Nuit Noire', user: 'bet_m***', time: '11:06', amount: 200, side: 'Loups', odds: '2.1x', payout: 0, won: false },
-  { game: 'Le Conseil', user: 'stra***', time: '11:05', amount: 75, side: 'Village', odds: '1.6x', payout: 120, won: true },
+  { game: 'Pong IA', user: 'stra***', time: '11:05', amount: 75, side: 'Bot B', odds: '1.6x', payout: 120, won: true },
   { game: 'Meute Alpha', user: 'nig***k', time: '11:04', amount: 300, side: 'Loups', odds: '3.2x', payout: 0, won: false },
   { game: 'Pleine Lune', user: 'lun***r', time: '11:03', amount: 150, side: 'Village', odds: '1.9x', payout: 285, won: true },
-  { game: 'Clair de Lune', user: 'da***k', time: '11:02', amount: 80, side: 'Loups', odds: '2.7x', payout: 216, won: true },
 ];
 
-const FEATURES = [
-  { tag: 'Nouveau', title: 'Transparence IA', desc: 'Verifiez chaque decision des agents avec les logs LLM complets.', color: '#7c3aed' },
-  { tag: 'Exclusif', title: 'Copy Trading', desc: 'Copiez les strategies des meilleurs parieurs automatiquement.', color: '#2563eb' },
-  { tag: 'Beta', title: 'Tournois', desc: 'Tournois quotidiens avec prize pool. Inscriptions bientot ouvertes.', color: '#059669' },
+const STEPS = [
+  {
+    num: '01',
+    title: 'Depose tes jetons',
+    desc: 'Commence avec 1000 W$ gratuits. Recharge ton compte pour jouer plus gros.',
+    href: '/deposit',
+    cta: 'Deposer',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+      </svg>
+    ),
+  },
+  {
+    num: '02',
+    title: 'Choisis ton jeu',
+    desc: 'Loup-Garou IA, Flappy Bird 1v1, Pong... Mise sur des victoires incertaines en live.',
+    href: '/create',
+    cta: 'Voir les jeux',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/>
+      </svg>
+    ),
+  },
+  {
+    num: '03',
+    title: 'Regarde et parie en live',
+    desc: 'Les IA jouent en temps reel. Analyse le jeu, place tes paris, encaisse tes gains.',
+    href: '/rules',
+    cta: 'Comprendre les regles',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+    ),
+  },
 ];
 
-function GameCard({ game }) {
+function StepCard({ step, index }) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <a href={game.slug} style={{
-      display: 'block', textDecoration: 'none',
-      borderRadius: 12, overflow: 'hidden',
-      background: 'var(--bg-secondary)',
-      border: '1px solid var(--border)',
-      transition: 'border-color 0.15s',
-      cursor: 'pointer',
-    }}
-    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; }}
-    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        flex: 1, minWidth: 240,
+        padding: '28px 24px',
+        borderRadius: 16,
+        background: hovered ? 'rgba(124,58,237,0.06)' : 'var(--bg-secondary)',
+        border: hovered ? '1px solid rgba(124,58,237,0.25)' : '1px solid rgba(255,255,255,0.06)',
+        transition: 'all 0.25s ease',
+        display: 'flex', flexDirection: 'column', gap: 14,
+      }}
     >
-      <div style={{
-        height: 120, background: 'var(--bg-tertiary)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative',
-        borderBottom: `2px solid ${game.color}`,
-      }}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={game.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M8 12c0-2 1.5-4 4-4s4 2 4 4"/>
-          <circle cx="9" cy="10" r="1" fill={game.color}/>
-          <circle cx="15" cy="10" r="1" fill={game.color}/>
-        </svg>
-      </div>
-      <div style={{ padding: '12px 14px' }}>
-        <div style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 6 }}>{game.name}</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)' }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
-          <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{game.live}</span> en jeu
+      {/* Number + Icon */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 32, fontWeight: 800,
+          color: 'rgba(124,58,237,0.2)',
+        }}>{step.num}</span>
+        <div style={{
+          width: 44, height: 44, borderRadius: 12,
+          background: 'rgba(124,58,237,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#a78bfa',
+        }}>
+          {step.icon}
         </div>
       </div>
-    </a>
-  );
-}
 
-function FeatureCard({ feature }) {
-  return (
-    <div style={{
-      background: 'var(--bg-tertiary)',
-      borderRadius: 12, padding: 20,
-      display: 'flex', gap: 16, alignItems: 'flex-start',
-      border: '1px solid var(--border)',
-      flex: 1, minWidth: 240,
-    }}>
-      <div style={{ flex: 1 }}>
-        <span style={{
-          fontSize: 11, fontWeight: 600, color: feature.color,
-          border: `1px solid ${feature.color}40`,
-          borderRadius: 4, padding: '2px 8px',
-          display: 'inline-block', marginBottom: 8,
-        }}>{feature.tag}</span>
-        <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{feature.title}</div>
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.5 }}>{feature.desc}</div>
-        <a href={feature.tag === 'Exclusif' ? '/copy' : '/live'} style={{
-          fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)',
-          marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 4,
-          textDecoration: 'none', transition: 'color 0.15s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-        >
-          En savoir plus
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-          </svg>
-        </a>
-      </div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{step.title}</div>
+      <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, flex: 1 }}>{step.desc}</div>
+
+      <a href={step.href} style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        padding: '10px 20px', borderRadius: 10,
+        background: hovered ? '#7c3aed' : 'rgba(124,58,237,0.12)',
+        color: hovered ? '#fff' : '#a78bfa',
+        fontSize: 13, fontWeight: 700, textDecoration: 'none',
+        transition: 'all 0.2s', alignSelf: 'flex-start',
+      }}>
+        {step.cta}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+        </svg>
+      </a>
     </div>
   );
 }
 
-function BetsTable() {
+function BetsTable({ isMobile }) {
+  if (isMobile) return null;
   return (
     <div style={{
-      background: 'var(--bg-tertiary)',
-      borderRadius: 12, overflow: 'hidden',
-      border: '1px solid var(--border)',
+      borderRadius: 14, overflow: 'hidden',
+      border: '1px solid rgba(255,255,255,0.06)',
+      background: 'var(--bg-secondary)',
     }}>
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--border)' }}>
-        {['Paris recents', 'Top gains', 'Classement'].map((tab, i) => (
-          <button key={tab} style={{
-            padding: '12px 20px', fontSize: 14, fontWeight: i === 0 ? 600 : 400,
-            color: i === 0 ? '#fff' : 'var(--text-muted)',
-            background: i === 0 ? 'rgba(255,255,255,0.06)' : 'transparent',
-            border: 'none', cursor: 'pointer',
-            borderBottom: i === 0 ? '2px solid var(--accent)' : '2px solid transparent',
-          }}>{tab}</button>
-        ))}
+      {/* Header */}
+      <div style={{
+        padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Paris recents</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#22c55e' }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', animation: 'pulse 2s infinite' }} />
+          LIVE
+        </div>
       </div>
 
       {/* Table header */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1.2fr 1fr 0.6fr 0.8fr 0.6fr 0.8fr',
-        padding: '10px 16px',
-        fontSize: 12, fontWeight: 600, color: 'var(--text-muted)',
-        borderBottom: '1px solid var(--border)',
+        padding: '10px 20px',
+        fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
+        borderBottom: '1px solid rgba(255,255,255,0.04)',
         textTransform: 'uppercase', letterSpacing: 0.5,
       }}>
-        <span>Partie</span>
-        <span>Joueur</span>
-        <span>Heure</span>
-        <span>Mise</span>
-        <span>Cote</span>
-        <span style={{ textAlign: 'right' }}>Gain</span>
+        <span>Partie</span><span>Joueur</span><span>Heure</span><span>Mise</span><span>Cote</span><span style={{ textAlign: 'right' }}>Gain</span>
       </div>
 
-      {/* Rows */}
       {RECENT_BETS.map((bet, i) => (
         <div key={i} style={{
           display: 'grid',
           gridTemplateColumns: '1.2fr 1fr 0.6fr 0.8fr 0.6fr 0.8fr',
-          padding: '12px 16px',
-          fontSize: 14,
-          borderBottom: i < RECENT_BETS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-          alignItems: 'center',
+          padding: '12px 20px', fontSize: 13,
+          borderBottom: i < RECENT_BETS.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none',
           transition: 'background 0.1s',
         }}
         onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
@@ -151,14 +147,14 @@ function BetsTable() {
         >
           <span style={{ color: '#fff', fontWeight: 500 }}>{bet.game}</span>
           <span style={{ color: 'var(--text-muted)' }}>{bet.user}</span>
-          <span style={{ color: 'var(--text-muted)' }}>{bet.time}</span>
-          <span style={{ color: '#fff' }}>{bet.amount} <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>W</span></span>
-          <span style={{ color: 'var(--text-muted)' }}>{bet.odds}</span>
+          <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>{bet.time}</span>
+          <span style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{bet.amount} <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>W$</span></span>
+          <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{bet.odds}</span>
           <span style={{
-            textAlign: 'right', fontWeight: 600,
-            color: bet.won ? '#22c55e' : 'var(--text-muted)',
+            textAlign: 'right', fontWeight: 600, fontFamily: 'var(--font-mono)',
+            color: bet.won ? '#22c55e' : '#ef4444',
           }}>
-            {bet.won ? `${bet.payout} W` : '-'}
+            {bet.won ? `+${bet.payout}` : `-${bet.amount}`}
           </span>
         </div>
       ))}
@@ -168,157 +164,110 @@ function BetsTable() {
 
 export default function HomePage() {
   const isMobile = useIsMobile();
+  const { openAuth, user } = useAuth();
 
   return (
     <div className="page-enter" style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px' }}>
       {/* Hero */}
       <div style={{
-        padding: isMobile ? '40px 0 32px' : '48px 0 40px',
-        display: isMobile ? 'block' : 'flex',
-        alignItems: 'center', gap: 40,
-      }}>
-        <div style={{ flex: 1 }}>
-          <h1 style={{
-            fontSize: isMobile ? 28 : 36, fontWeight: 800,
-            color: '#fff', lineHeight: 1.2, marginBottom: 16,
-          }}>
-            Le Loup-Garou joue par des IAs. Vous pariez.
-          </h1>
-          <p style={{
-            fontSize: 16, color: 'var(--text-muted)',
-            lineHeight: 1.6, marginBottom: 24, maxWidth: 460,
-          }}>
-            8 agents IA s'affrontent en temps reel. Debats, votes, eliminations. Analysez le jeu et pariez sur l'issue.
-          </p>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <a href="/live" style={{
-              padding: '12px 28px', fontSize: 14, fontWeight: 600,
-              background: '#7c3aed',
-              border: 'none', borderRadius: 8,
-              color: '#fff', textDecoration: 'none', display: 'inline-flex',
-              alignItems: 'center', gap: 8, transition: 'background 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = '#6d28d9'}
-            onMouseLeave={e => e.currentTarget.style.background = '#7c3aed'}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
-              Jouer maintenant
-            </a>
-            <a href="/create" style={{
-              padding: '12px 28px', fontSize: 14, fontWeight: 500,
-              background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)',
-              borderRadius: 8, color: '#fff', textDecoration: 'none', display: 'inline-flex',
-              alignItems: 'center', gap: 8, transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'var(--border-hover)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-              Créer une partie
-            </a>
-          </div>
-        </div>
-
-        {/* Right side cards — like Stake's Casino/Sports */}
-        {!isMobile && (
-          <div style={{ display: 'flex', gap: 12 }}>
-            <a href="/live" style={{
-              width: 200, height: 140, borderRadius: 12,
-              background: 'var(--bg-secondary)',
-              display: 'flex', flexDirection: 'column',
-              justifyContent: 'flex-end', padding: 16, textDecoration: 'none',
-              border: '1px solid var(--border)',
-              transition: 'border-color 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#7c3aed'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>En Direct</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e' }} />
-                96 en ligne
-              </div>
-            </a>
-            <a href="/create" style={{
-              width: 200, height: 140, borderRadius: 12,
-              background: 'var(--bg-secondary)',
-              display: 'flex', flexDirection: 'column',
-              justifyContent: 'flex-end', padding: 16, textDecoration: 'none',
-              border: '1px solid var(--border)',
-              transition: 'border-color 0.15s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#2563eb'}
-            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Créer une partie</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-                Joue avec tes potes
-              </div>
-            </a>
-          </div>
-        )}
-      </div>
-
-      {/* Search bar — like Stake */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 0,
-        background: 'var(--bg-tertiary)',
-        borderRadius: 8, overflow: 'hidden',
-        border: '1px solid var(--border)',
-        marginBottom: 32,
+        padding: isMobile ? '40px 0 32px' : '56px 0 48px',
+        textAlign: 'center',
       }}>
         <div style={{
-          padding: '10px 16px', fontSize: 14, fontWeight: 600, color: '#fff',
-          background: 'rgba(255,255,255,0.06)',
-          borderRight: '1px solid var(--border)',
-          whiteSpace: 'nowrap',
-        }}>Loup-Garou</div>
-        <div style={{
-          flex: 1, padding: '10px 16px', fontSize: 14,
-          color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8,
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          padding: '6px 14px', borderRadius: 20,
+          background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+          fontSize: 12, fontWeight: 600, color: '#22c55e',
+          marginBottom: 20,
         }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-          </svg>
-          Rechercher une partie...
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', animation: 'pulse 2s infinite' }} />
+          96 joueurs en ligne
+        </div>
+
+        <h1 style={{
+          fontSize: isMobile ? 28 : 42, fontWeight: 800,
+          color: '#fff', lineHeight: 1.15, marginBottom: 16,
+          maxWidth: 700, margin: '0 auto 16px',
+        }}>
+          Des IA jouent.<br />Toi, tu paries.
+        </h1>
+        <p style={{
+          fontSize: isMobile ? 14 : 16, color: 'var(--text-muted)',
+          lineHeight: 1.6, marginBottom: 28, maxWidth: 520, margin: '0 auto 28px',
+        }}>
+          Loup-Garou, Flappy Bird, Pong... des agents IA s'affrontent en live. Analyse, mise et encaisse.
+        </p>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <a href="/create" style={{
+            padding: '13px 32px', fontSize: 14, fontWeight: 700,
+            background: '#7c3aed', border: 'none', borderRadius: 10,
+            color: '#fff', textDecoration: 'none', display: 'inline-flex',
+            alignItems: 'center', gap: 8, transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = '#6d28d9'}
+          onMouseLeave={e => e.currentTarget.style.background = '#7c3aed'}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            Lancer une partie
+          </a>
+          <a href="/live" style={{
+            padding: '13px 32px', fontSize: 14, fontWeight: 600,
+            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 10, color: '#fff', textDecoration: 'none',
+            display: 'inline-flex', alignItems: 'center', gap: 8, transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+          >
+            Regarder en live
+          </a>
         </div>
       </div>
 
-      {/* Trending Games — like Stake */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: 16,
-        }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: 0 }}>Parties en cours</h2>
-          <a href="/live" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500 }}>Voir tout</a>
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-          gap: 12,
-        }}>
-          {GAMES.map(game => <GameCard key={game.id} game={game} />)}
-        </div>
-      </div>
-
-      {/* Feature cards — like Stake's promo cards */}
+      {/* 3 Steps */}
       <div style={{
-        display: 'flex', gap: 12, marginBottom: 32,
+        display: 'flex', gap: 16, marginBottom: 48,
         flexDirection: isMobile ? 'column' : 'row',
       }}>
-        {FEATURES.map((f, i) => <FeatureCard key={i} feature={f} />)}
+        {STEPS.map((step, i) => <StepCard key={i} step={step} index={i} />)}
       </div>
 
-      {/* Bets table — like Stake's Casino Bets */}
+      {/* Bets table */}
       <div style={{ marginBottom: 48 }}>
-        <BetsTable />
+        <BetsTable isMobile={isMobile} />
       </div>
+
+      {/* Mobile: condensed bets */}
+      {isMobile && (
+        <div style={{
+          marginBottom: 48, borderRadius: 14, overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.06)', background: 'var(--bg-secondary)',
+        }}>
+          <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Paris recents</span>
+            <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>LIVE</span>
+          </div>
+          {RECENT_BETS.slice(0, 4).map((bet, i) => (
+            <div key={i} style={{
+              padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.03)' : 'none',
+            }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{bet.game}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{bet.user} · {bet.side}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-mono)', color: bet.won ? '#22c55e' : '#ef4444' }}>
+                  {bet.won ? `+${bet.payout}` : `-${bet.amount}`} W$
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{bet.odds}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -33,6 +33,15 @@ import NuitNoire from './pages/games/NuitNoire';
 import MeuteAlpha from './pages/games/MeuteAlpha';
 import LobbyPage from './pages/games/LobbyPage';
 import CreateGame from './pages/CreateGame';
+import AffiliatePage from './pages/AffiliatePage';
+import FaqPage from './pages/FaqPage';
+import RulesPage from './pages/RulesPage';
+import CharactersPage from './pages/CharactersPage';
+import DepositPage from './pages/DepositPage';
+import HistoryPage from './pages/HistoryPage';
+import NotificationsPage from './pages/NotificationsPage';
+import SettingsPage from './pages/SettingsPage';
+import AboutPage from './pages/AboutPage';
 
 const DYNAMIC_ENV_ID = (import.meta.env.VITE_DYNAMIC_ENV_ID || '043ee6c8-bac8-4266-8345-794bb7a378a7').trim();
 
@@ -130,11 +139,14 @@ function Footer({ isMobile }) {
         {/* Right — legal links */}
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
           {[
+            { label: 'Règles', href: '/rules' },
+            { label: 'Personnages', href: '/characters' },
+            { label: 'FAQ', href: '/faq' },
+            { label: 'À propos', href: '/about' },
             { label: 'CGU', href: '/terms' },
             { label: 'Confidentialité', href: '/privacy' },
             { label: 'Jeu responsable', href: '/responsible-gaming' },
             { label: 'Mentions légales', href: '/legal' },
-            { label: 'Créer', href: '/create' },
           ].map(({ label, href }) => (
             <a
               key={href}
@@ -184,6 +196,15 @@ function getPage() {
   if (path === '/game/village-maudit') return 'village-maudit';
   if (path === '/game/nuit-noire') return 'nuit-noire';
   if (path === '/game/meute-alpha') return 'meute-alpha';
+  if (path === '/affiliate') return 'affiliate';
+  if (path === '/faq') return 'faq';
+  if (path === '/rules') return 'rules';
+  if (path === '/characters') return 'characters';
+  if (path === '/deposit') return 'deposit';
+  if (path === '/history') return 'history';
+  if (path === '/notifications') return 'notifications';
+  if (path === '/settings') return 'settings';
+  if (path === '/about') return 'about';
   if (path.startsWith('/lobby/')) return 'lobby';
   if (path.startsWith('/profile/')) return 'profile';
   if (path.startsWith('/market/')) return 'market';
@@ -288,6 +309,15 @@ function AppInner({ walletDisabled = false }) {
             {page === 'nuit-noire'         && <NuitNoire />}
             {page === 'meute-alpha'        && <MeuteAlpha />}
             {page === 'lobby'              && <LobbyPage />}
+            {page === 'affiliate'          && <AuthGuard><AffiliatePage /></AuthGuard>}
+            {page === 'faq'                && <FaqPage />}
+            {page === 'rules'              && <RulesPage />}
+            {page === 'characters'         && <CharactersPage />}
+            {page === 'deposit'            && <DepositPage />}
+            {page === 'history'            && <AuthGuard><HistoryPage /></AuthGuard>}
+            {page === 'notifications'      && <AuthGuard><NotificationsPage /></AuthGuard>}
+            {page === 'settings'           && <SettingsPage />}
+            {page === 'about'              && <AboutPage />}
           </PageErrorBoundary>
         </main>
 

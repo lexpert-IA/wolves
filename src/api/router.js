@@ -1,10 +1,115 @@
 const express = require('express');
 const router = express.Router();
 const logger = require('../utils/logger');
+const { resolveUserId, requireAuth } = require('../middleware/firebaseAuth');
+const User = require('../../db/models/User');
+
+// -- Apply Firebase resolver globally
+router.use(resolveUserId);
 
 // -- Health check
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'wolves', timestamp: new Date().toISOString() });
+});
+
+// ── Auth routes ─────────────────────────────────────────────────────────────
+
+// GET /api/auth/me — returns the logged-in user's profile
+router.get('/auth/me', requireAuth, (req, res) => {
+  const u = req.dbUser;
+  res.json({
+    userId: u._id,
+    username: u.username,
+    email: u.email,
+    balance: u.balance || 0,
+    lockedBalance: u.lockedBalance || 0,
+    totalBets: u.totalBets || 0,
+    totalWon: u.totalWon || 0,
+    totalLost: u.totalLost || 0,
+    createdAt: u.createdAt,
+  });
+});
+
+// GET /api/auth/check?username=xxx — check if username is available
+router.get('/auth/check', async (req, res) => {
+  const username = (req.query.username || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  if (username.length < 3) return res.json({ available: false });
+  const exists = await User.findOne({ username }).lean();
+  res.json({ available: !exists });
+});
+
+// POST /api/auth/firebase-register — create user profile after Firebase auth
+router.post('/auth/firebase-register', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Token manquant' });
+  }
+
+  if (!req.firebaseUser) {
+    return res.status(401).json({ error: 'Token invalide' });
+  }
+
+  const { uid, email, firebase: fbInfo } = req.firebaseUser;
+  const { username, refCode } = req.body;
+
+  const clean = (username || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  if (clean.length < 3 || clean.length > 20) {
+    return res.status(400).json({ error: 'Pseudo invalide (3-20 car.)' });
+  }
+
+  try {
+    // Check if user already exists
+    const existing = await User.findOne({ firebaseUid: uid });
+    if (existing) {
+      return res.json({
+        userId: existing._id,
+        username: existing.username,
+        email: existing.email,
+        balance: existing.balance || 0,
+        lockedBalance: existing.lockedBalance || 0,
+        totalBets: existing.totalBets || 0,
+        totalWon: existing.totalWon || 0,
+        totalLost: existing.totalLost || 0,
+        createdAt: existing.createdAt,
+      });
+    }
+
+    // Check username taken
+    const taken = await User.findOne({ username: clean });
+    if (taken) {
+      return res.status(409).json({ error: 'Ce pseudo est déjà pris' });
+    }
+
+    // Determine auth provider
+    const provider = fbInfo?.sign_in_provider === 'google.com' ? 'google'
+      : fbInfo?.sign_in_provider === 'password' ? 'email'
+      : 'anonymous';
+
+    const user = await User.create({
+      firebaseUid: uid,
+      email: email || null,
+      authProvider: provider,
+      username: clean,
+      balance: 1000, // Starting tokens (play money)
+    });
+
+    logger.info(`New user registered: ${clean} (${provider})`);
+
+    res.json({
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      balance: user.balance,
+      lockedBalance: 0,
+      totalBets: 0,
+      totalWon: 0,
+      totalLost: 0,
+      createdAt: user.createdAt,
+    });
+  } catch (err) {
+    logger.error(`Register error: ${err.message}`);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 });
 
 // -- Matches (placeholder pour S4)
