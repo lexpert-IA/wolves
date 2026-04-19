@@ -6,6 +6,7 @@ import BettingPanel from '../components/game/BettingPanel';
 import BetModal from '../components/game/BetModal';
 import VerifyModal from '../components/game/VerifyModal';
 import PhaseBanner from '../components/game/PhaseBanner';
+import GameHUD from '../components/game/GameHUD';
 import WinnerOverlay from '../components/game/WinnerOverlay';
 
 const TABS = [
@@ -159,7 +160,11 @@ export default function LiveGamePage() {
   // Desktop layout
   if (!isMobile) {
     return (
-      <div style={{ display: 'flex', gap: 16, padding: '16px 0', minHeight: 'calc(100vh - 140px)' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', padding: '8px 0', minHeight: 'calc(100vh - 140px)' }}>
+        {/* HUD Bar */}
+        <GameHUD phase={phase} round={round} balance={balance} players={players} matchId={matchId} />
+
+        <div style={{ display: 'flex', gap: 16, flex: 1, minHeight: 0 }}>
         {/* Left column */}
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <GameTable players={players} phase={phase} currentSpeaker={currentSpeaker} />
@@ -171,6 +176,7 @@ export default function LiveGamePage() {
         {/* Right column — betting */}
         <div style={{ width: 340, flexShrink: 0 }}>
           <BettingPanel markets={markets} myBets={myBets} balance={balance} onBet={handleBetClick} />
+        </div>
         </div>
 
         {/* Overlays */}
@@ -203,6 +209,10 @@ export default function LiveGamePage() {
   // Mobile layout — tabs
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 140px)' }}>
+      {/* HUD Bar — compact on mobile */}
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <GameHUD phase={phase} round={round} balance={balance} players={players} matchId={matchId} />
+      </div>
       {/* Tab bar */}
       <div style={{
         display: 'flex', borderBottom: '1px solid var(--border)',
