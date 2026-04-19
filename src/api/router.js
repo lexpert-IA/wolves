@@ -153,17 +153,17 @@ router.get('/matches/:matchId/events', async (req, res) => {
 // -- Start a match
 router.post('/matches/start', async (req, res) => {
   try {
+    const Character = require('../../db/models/Character');
     const { MatchEngine } = require('../engine/matchEngine');
-    const thesee = require('../agents/personalities/thesee.json');
-    const lyra = require('../agents/personalities/lyra.json');
-    const orion = require('../agents/personalities/orion.json');
-    const selene = require('../agents/personalities/selene.json');
-    const fenris = require('../agents/personalities/fenris.json');
-    const cassandra = require('../agents/personalities/cassandra.json');
-    const hector = require('../agents/personalities/hector.json');
-    const iris = require('../agents/personalities/iris.json');
 
-    const characters = [thesee, lyra, orion, selene, fenris, cassandra, hector, iris];
+    // Load random characters from DB (8 or 12)
+    const count = parseInt(req.query.players) || 8;
+    const characters = await Character.aggregate([{ $sample: { size: count } }]);
+
+    if (characters.length < count) {
+      return res.status(400).json({ error: `Pas assez de personnages en DB (${characters.length}/${count}). Lancez: node scripts/seedCharacters.js` });
+    }
+
     const engine = new MatchEngine(characters);
 
     // Start match in background (don't await — it runs for minutes)

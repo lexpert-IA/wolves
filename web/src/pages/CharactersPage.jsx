@@ -1,142 +1,105 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useIsMobile } from '../hooks/useIsMobile';
 
-/* ── Character data — images to be added later ── */
-const CHARACTERS = [
-  { id: 'aurora', name: 'Aurora', personality: 'Analytique et calme. Pose des questions precises et demasque les menteurs.', trait: 'Logique', color: '#06B6D4' },
-  { id: 'silas', name: 'Silas', personality: 'Charismatique et manipulateur. Sait retourner les accusations.', trait: 'Persuasion', color: '#7C3AED' },
-  { id: 'elara', name: 'Elara', personality: 'Intuitive et prudente. Observe plus qu\'elle ne parle.', trait: 'Observation', color: '#EC4899' },
-  { id: 'kael', name: 'Kael', personality: 'Impulsif et direct. Accuse sans hesiter et force les votes.', trait: 'Agressivite', color: '#EF4444' },
-  { id: 'nova', name: 'Nova', personality: 'Mysterieuse et strategique. Joue un double jeu parfait.', trait: 'Strategie', color: '#8B5CF6' },
-  { id: 'gael', name: 'Gael', personality: 'Loyal et protecteur. Defend les suspects et cherche la verite.', trait: 'Protection', color: '#10B981' },
-  { id: 'lyra', name: 'Lyra', personality: 'Mefiante et sarcastique. Ne fait confiance a personne.', trait: 'Mefiance', color: '#F59E0B' },
-  { id: 'jace', name: 'Jace', personality: 'Froid et calculateur. Analyse les probabilites avant d\'agir.', trait: 'Calcul', color: '#3B82F6' },
-];
+const BASE = import.meta.env.VITE_API_URL || '';
 
-function CharacterCard({ char, selected, onSelect }) {
-  const isSelected = selected === char.id;
+const GROUP_LABELS = {
+  cerveaux: { name: 'Les Cerveaux', emoji: 'Logique & Calme', color: '#3b82f6' },
+  chaos: { name: 'Les Chaos-Makers', emoji: 'Agressivite & Bruit', color: '#ef4444' },
+  illusionnistes: { name: 'Les Illusionnistes', emoji: 'Charisme & Mensonge', color: '#a855f7' },
+  electrons: { name: 'Les Electrons Libres', emoji: 'Instabilite & Emotion', color: '#f59e0b' },
+  silencieux: { name: 'Les Silencieux', emoji: 'Discretion & Observation', color: '#64748b' },
+  wildcards: { name: 'Les Wildcards', emoji: 'Styles Hybrides', color: '#22c55e' },
+};
 
+function StatBar({ label, value, color }) {
   return (
-    <button
-      onClick={() => onSelect(isSelected ? null : char.id)}
-      style={{
-        background: isSelected ? `${char.color}10` : 'var(--bg-secondary)',
-        border: isSelected ? `2px solid ${char.color}` : '1px solid rgba(255,255,255,0.06)',
-        borderRadius: 14, padding: 0, cursor: 'pointer',
-        textAlign: 'left', width: '100%', overflow: 'hidden',
-        transition: 'all 0.2s',
-      }}
-    >
-      {/* Image placeholder */}
-      <div style={{
-        width: '100%', height: 140,
-        background: `linear-gradient(135deg, ${char.color}12, ${char.color}05)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        {/* Avatar letter — will be replaced by image */}
-        <div style={{
-          width: 64, height: 64, borderRadius: '50%',
-          background: `${char.color}25`, border: `2px solid ${char.color}40`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 28, fontWeight: 800, color: char.color,
-          fontFamily: 'var(--font-display)',
-        }}>
-          {char.name[0]}
-        </div>
-
-        {/* Trait badge */}
-        <div style={{
-          position: 'absolute', top: 10, right: 10,
-          padding: '3px 8px', borderRadius: 5,
-          background: `${char.color}20`, fontSize: 10, fontWeight: 700,
-          color: char.color, letterSpacing: '0.5px',
-        }}>
-          {char.trait}
-        </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ fontSize: 11, color: 'var(--text-muted)', width: 70, textAlign: 'right' }}>{label}</span>
+      <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)' }}>
+        <div style={{ width: `${value}%`, height: '100%', borderRadius: 3, background: color }} />
       </div>
-
-      {/* Info */}
-      <div style={{ padding: '14px 16px' }}>
-        <div style={{
-          fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 700,
-          color: 'var(--text-primary)', marginBottom: 6,
-        }}>
-          {char.name}
-        </div>
-        <div style={{
-          fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5,
-          minHeight: 36,
-        }}>
-          {char.personality}
-        </div>
-      </div>
-    </button>
+      <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: '#fff', width: 30, fontWeight: 600 }}>{value}%</span>
+    </div>
   );
 }
 
 export default function CharactersPage() {
-  const [selected, setSelected] = useState(null);
-  const selectedChar = CHARACTERS.find(c => c.id === selected);
+  const isMobile = useIsMobile();
+  const [characters, setCharacters] = useState([]);
+
+  useEffect(() => {
+    fetch(`${BASE}/api/characters`)
+      .then(r => r.json())
+      .then(data => setCharacters(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
+
+  const groups = {};
+  characters.forEach(c => {
+    const g = c.group || 'wildcards';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(c);
+  });
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto', padding: '32px 16px' }}>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, color: '#fff', marginBottom: 6 }}>
-        Les Personnages
+    <div className="page-enter" style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '20px 16px' : '32px 16px' }}>
+      <h1 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, color: '#fff', marginBottom: 8 }}>
+        Les 24 Agents IA
       </h1>
-      <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 28, lineHeight: 1.5 }}>
-        8 agents IA avec des personnalites uniques. Chacun debat, accuse et vote differemment.
+      <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 32, maxWidth: 600 }}>
+        Chaque agent a une personnalite fixe qui controle son comportement, peu importe son role. Les stats ne mesurent pas l'intelligence du modele, mais le temperament du personnage.
       </p>
 
-      {/* Selected character detail */}
-      {selectedChar && (
-        <div style={{
-          display: 'flex', gap: 20, padding: '20px',
-          background: `${selectedChar.color}08`,
-          border: `1px solid ${selectedChar.color}25`,
-          borderRadius: 16, marginBottom: 24,
-          alignItems: 'center',
-        }}>
-          {/* Large avatar placeholder */}
-          <div style={{
-            width: 90, height: 90, borderRadius: 16, flexShrink: 0,
-            background: `${selectedChar.color}15`, border: `2px solid ${selectedChar.color}30`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 40, fontWeight: 800, color: selectedChar.color,
-            fontFamily: 'var(--font-display)',
-          }}>
-            {selectedChar.name[0]}
-          </div>
-          <div>
-            <div style={{
-              fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 800,
-              color: 'var(--text-primary)', marginBottom: 4,
-            }}>
-              {selectedChar.name}
+      {Object.entries(GROUP_LABELS).map(([key, meta]) => {
+        const chars = groups[key] || [];
+        if (chars.length === 0) return null;
+        return (
+          <div key={key} style={{ marginBottom: 32 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <div style={{ width: 4, height: 20, borderRadius: 2, background: meta.color }} />
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{meta.name}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>— {meta.emoji}</span>
             </div>
             <div style={{
-              display: 'inline-block', padding: '3px 10px', borderRadius: 6,
-              background: `${selectedChar.color}20`, fontSize: 11, fontWeight: 700,
-              color: selectedChar.color, marginBottom: 8,
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+              gap: 12,
             }}>
-              {selectedChar.trait}
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              {selectedChar.personality}
+              {chars.map(c => (
+                <div key={c.name} style={{
+                  padding: '18px', borderRadius: 14,
+                  background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.06)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                    <div style={{
+                      width: 42, height: 42, borderRadius: 12,
+                      background: `${c.color || meta.color}20`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 16, fontWeight: 800, color: c.color || meta.color,
+                    }}>
+                      {c.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{c.name}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{c.archetype} — {c.trait}</div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.5 }}>
+                    {c.lorePublic || c.backstory}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    <StatBar label="Intuition" value={c.personality?.intuition || 50} color="#3b82f6" />
+                    <StatBar label="Charisme" value={c.personality?.charisme || 50} color="#f59e0b" />
+                    <StatBar label="Audace" value={c.personality?.audace || 50} color="#ef4444" />
+                    <StatBar label="Sang-froid" value={c.personality?.sang_froid || 50} color="#22c55e" />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-        gap: 12,
-      }}>
-        {CHARACTERS.map(c => (
-          <CharacterCard key={c.id} char={c} selected={selected} onSelect={setSelected} />
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 }
