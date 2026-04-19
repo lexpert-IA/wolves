@@ -374,7 +374,7 @@ function ConfigPanel({ isMobile }) {
         style={{
           width: '100%', marginTop: 20, padding: '14px 0',
           borderRadius: 10, border: 'none',
-          background: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+          background: '#7c3aed',
           color: '#fff', fontFamily: "'Orbitron', sans-serif",
           fontWeight: 700, fontSize: 15, cursor: 'pointer',
           transition: 'opacity 0.2s',
@@ -485,9 +485,7 @@ export default function CreateGame() {
           fontWeight: 800,
           color: 'var(--text-primary)',
           margin: '0 0 8px 0',
-          background: 'linear-gradient(135deg, #7c3aed, #a78bfa)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
+          color: '#fff',
         }}>
           Creer une partie
         </h1>

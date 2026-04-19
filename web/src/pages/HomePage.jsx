@@ -30,42 +30,33 @@ function GameCard({ game }) {
     <a href={game.slug} style={{
       display: 'block', textDecoration: 'none',
       borderRadius: 12, overflow: 'hidden',
-      transition: 'transform 0.2s, box-shadow 0.2s',
+      background: 'var(--bg-secondary)',
+      border: '1px solid var(--border)',
+      transition: 'border-color 0.15s',
       cursor: 'pointer',
     }}
-    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.3)'; }}
-    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-hover)'; }}
+    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; }}
     >
-      {/* Card image placeholder */}
       <div style={{
-        height: 160, background: `linear-gradient(135deg, ${game.color}, ${game.color}88)`,
+        height: 120, background: 'var(--bg-tertiary)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative',
+        borderBottom: `2px solid ${game.color}`,
       }}>
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-          <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-          <line x1="9" y1="9" x2="9.01" y2="9"/>
-          <line x1="15" y1="9" x2="15.01" y2="9"/>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={game.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M8 12c0-2 1.5-4 4-4s4 2 4 4"/>
+          <circle cx="9" cy="10" r="1" fill={game.color}/>
+          <circle cx="15" cy="10" r="1" fill={game.color}/>
         </svg>
-        <div style={{
-          position: 'absolute', bottom: 10, left: 12,
-          fontSize: 16, fontWeight: 700, color: '#fff',
-          textShadow: '0 2px 8px rgba(0,0,0,0.5)',
-        }}>{game.name}</div>
       </div>
-      {/* Footer */}
-      <div style={{
-        padding: '8px 12px',
-        background: 'var(--bg-tertiary)',
-        display: 'flex', alignItems: 'center', gap: 6,
-        fontSize: 13, color: 'var(--text-muted)',
-      }}>
-        <span style={{
-          width: 6, height: 6, borderRadius: '50%',
-          background: '#22c55e', flexShrink: 0,
-        }} />
-        <span style={{ color: '#fff', fontWeight: 500 }}>{game.live}</span> en jeu
+      <div style={{ padding: '12px 14px' }}>
+        <div style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 6 }}>{game.name}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text-muted)' }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
+          <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{game.live}</span> en jeu
+        </div>
       </div>
     </a>
   );
@@ -202,14 +193,13 @@ export default function HomePage() {
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <a href="/live" style={{
               padding: '12px 28px', fontSize: 14, fontWeight: 600,
-              background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+              background: '#7c3aed',
               border: 'none', borderRadius: 8,
               color: '#fff', textDecoration: 'none', display: 'inline-flex',
-              alignItems: 'center', gap: 8, transition: 'all 0.2s',
-              boxShadow: '0 2px 8px rgba(124,58,237,0.3)',
+              alignItems: 'center', gap: 8, transition: 'background 0.15s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(124,58,237,0.4)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(135deg, #7c3aed, #6d28d9)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(124,58,237,0.3)'; }}
+            onMouseEnter={e => e.currentTarget.style.background = '#6d28d9'}
+            onMouseLeave={e => e.currentTarget.style.background = '#7c3aed'}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="5 3 19 12 5 21 5 3"/>
@@ -238,35 +228,35 @@ export default function HomePage() {
           <div style={{ display: 'flex', gap: 12 }}>
             <a href="/live" style={{
               width: 200, height: 140, borderRadius: 12,
-              background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+              background: 'var(--bg-secondary)',
               display: 'flex', flexDirection: 'column',
               justifyContent: 'flex-end', padding: 16, textDecoration: 'none',
-              border: '2px solid rgba(124,58,237,0.4)',
-              transition: 'transform 0.2s',
+              border: '1px solid var(--border)',
+              transition: 'border-color 0.15s',
             }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#7c3aed'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
             >
               <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>En Direct</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
                 <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e' }} />
                 96 en ligne
               </div>
             </a>
-            <a href="/copy" style={{
+            <a href="/create" style={{
               width: 200, height: 140, borderRadius: 12,
-              background: 'linear-gradient(135deg, #1e3a5f, #2563eb)',
+              background: 'var(--bg-secondary)',
               display: 'flex', flexDirection: 'column',
               justifyContent: 'flex-end', padding: 16, textDecoration: 'none',
-              border: '2px solid rgba(37,99,235,0.4)',
-              transition: 'transform 0.2s',
+              border: '1px solid var(--border)',
+              transition: 'border-color 0.15s',
             }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseEnter={e => e.currentTarget.style.borderColor = '#2563eb'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
             >
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Copy Trading</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 4 }}>
-                Copiez les meilleurs
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Créer une partie</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                Joue avec tes potes
               </div>
             </a>
           </div>

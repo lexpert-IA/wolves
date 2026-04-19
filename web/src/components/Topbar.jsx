@@ -232,12 +232,14 @@ export default function Topbar({ walletDisabled = false }) {
               }}>Connexion</button>
               <button onClick={openAuth} style={{
                 padding: '8px 20px', fontSize: 14, fontWeight: 600,
-                background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                background: '#7c3aed',
                 border: 'none',
                 borderRadius: 8, color: '#fff', cursor: 'pointer',
-                transition: 'all 0.2s',
-                boxShadow: '0 2px 8px rgba(124,58,237,0.3)',
-              }}>Inscription</button>
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = '#6d28d9'}
+              onMouseLeave={e => e.currentTarget.style.background = '#7c3aed'}
+              >Inscription</button>
             </>
           )}
         </div>

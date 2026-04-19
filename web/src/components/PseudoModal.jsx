@@ -83,7 +83,7 @@ export default function PseudoModal() {
         <div style={{
           background: '#111118', border: '1px solid rgba(124,58,237,0.3)',
           borderRadius: 20, padding: '40px 36px', maxWidth: 420, width: '100%',
-          boxShadow: '0 0 80px rgba(124,58,237,0.2)', animation: 'modal-in .25s ease',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.5)', animation: 'modal-in .25s ease',
         }}>
           <style>{`@keyframes modal-in { from { opacity:0; transform:scale(.95) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }`}</style>
 
@@ -149,11 +149,10 @@ export default function PseudoModal() {
               disabled={!isValid || loading}
               style={{
                 width: '100%', padding: '13px 0', borderRadius: 10, border: 'none',
-                background: isValid ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'rgba(255,255,255,0.05)',
+                background: isValid ? '#7c3aed' : 'rgba(255,255,255,0.05)',
                 color: isValid ? '#fff' : '#475569',
                 cursor: isValid ? 'pointer' : 'not-allowed',
                 fontWeight: 700, fontSize: 15,
-                boxShadow: isValid ? '0 0 24px rgba(124,58,237,.4)' : 'none',
                 transition: 'all .2s',
               }}
             >

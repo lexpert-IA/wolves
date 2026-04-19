@@ -134,7 +134,7 @@ export default function CopyTradeButton({ marketId, side, marketTitle }) {
               style={{
                 width: '100%', padding: '8px', borderRadius: 8, border: 'none',
                 background: side === 'YES'
-                  ? 'linear-gradient(135deg, #7c3aed, #a855f7)'
+                  ? '#7c3aed'
                   : 'rgba(148,163,184,0.3)',
                 color: '#fff', fontSize: 12, fontWeight: 700,
                 cursor: loading ? 'not-allowed' : 'pointer',

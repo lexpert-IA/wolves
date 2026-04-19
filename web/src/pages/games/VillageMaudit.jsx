@@ -38,7 +38,8 @@ export default function VillageMaudit() {
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Hero */}
       <div style={{
-        background: `linear-gradient(135deg, ${COLOR}, ${COLOR}88, var(--bg-primary))`,
+        background: 'var(--bg-secondary)',
+        borderBottom: '1px solid var(--border)',
         padding: isMobile ? '48px 20px' : '80px 40px',
         textAlign: 'center',
         position: 'relative',

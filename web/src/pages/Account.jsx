@@ -255,10 +255,9 @@ function DepositModal({ open, onClose, address, userId, betlyBalance, onWalletCr
                 disabled={creatingWallet}
                 style={{
                   padding: '13px 32px', borderRadius: 12, border: 'none',
-                  background: creatingWallet ? 'rgba(124,58,237,0.3)' : 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+                  background: creatingWallet ? 'rgba(124,58,237,0.3)' : '#7c3aed',
                   color: '#fff', fontSize: 14, fontWeight: 700,
                   cursor: creatingWallet ? 'wait' : 'pointer',
-                  boxShadow: creatingWallet ? 'none' : '0 4px 20px rgba(124,58,237,0.3)',
                   transition: 'all .2s',
                 }}
               >
@@ -860,11 +859,10 @@ function WithdrawModal({ open, onClose, address, betlyBalance, userId }) {
                 style={{
                   width: '100%', padding: '14px', borderRadius: 12, border: 'none',
                   cursor: (!dest || !amount) ? 'not-allowed' : 'pointer',
-                  background: (!dest || !amount) ? 'rgba(124,58,237,0.2)' : 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+                  background: (!dest || !amount) ? 'rgba(124,58,237,0.2)' : '#7c3aed',
                   color: '#fff', fontSize: 15, fontWeight: 800,
                   opacity: (!dest || !amount) ? 0.5 : 1,
                   transition: 'all .2s', letterSpacing: '0.3px',
-                  boxShadow: (!dest || !amount) ? 'none' : '0 4px 20px rgba(124,58,237,0.3)',
                 }}
               >
                 Retirer {amount ? `$${amount}` : ''}
@@ -1087,13 +1085,12 @@ export default function Account() {
           onClick={() => setDepositOpen(true)}
           style={{
             flex: 1, padding: '12px 0', borderRadius: 12, border: 'none', cursor: 'pointer',
-            background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+            background: '#7c3aed',
             color: '#fff', fontSize: 14, fontWeight: 700,
-            boxShadow: '0 4px 20px rgba(124,58,237,0.3)',
-            transition: 'all .2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            transition: 'background 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}
-          onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 28px rgba(124,58,237,0.45)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(124,58,237,0.3)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+          onMouseEnter={e => e.currentTarget.style.background = '#6d28d9'}
+          onMouseLeave={e => e.currentTarget.style.background = '#7c3aed'}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m5 12 7-7 7 7"/></svg>
           Déposer

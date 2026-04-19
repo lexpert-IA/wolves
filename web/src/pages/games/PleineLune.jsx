@@ -36,7 +36,8 @@ export default function PleineLune() {
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Hero */}
       <div style={{
-        background: `linear-gradient(135deg, ${COLOR}, ${COLOR}88, var(--bg-primary))`,
+        background: 'var(--bg-secondary)',
+        borderBottom: '1px solid var(--border)',
         padding: isMobile ? '48px 20px' : '80px 40px',
         textAlign: 'center',
         position: 'relative',
@@ -68,14 +69,13 @@ export default function PleineLune() {
           </p>
           <a href="/live" style={{
             display: 'inline-block', padding: '14px 40px', borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+            background: '#7c3aed',
             color: '#fff', fontWeight: 700, fontSize: 16, textDecoration: 'none',
             fontFamily: 'var(--font-body)',
             transition: 'transform 0.2s, box-shadow 0.2s',
-            boxShadow: '0 4px 20px rgba(124,58,237,0.4)',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(124,58,237,0.5)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(124,58,237,0.4)'; }}
+                      }}
+          onMouseEnter={e => e.currentTarget.style.background = '#6d28d9'}
+          onMouseLeave={e => e.currentTarget.style.background = '#7c3aed'}
           >
             Rejoindre une partie
           </a>
@@ -137,11 +137,10 @@ export default function PleineLune() {
         </p>
         <a href="/live" style={{
           display: 'inline-block', padding: '14px 40px', borderRadius: 'var(--radius-lg)',
-          background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+          background: '#7c3aed',
           color: '#fff', fontWeight: 700, fontSize: 16, textDecoration: 'none',
           fontFamily: 'var(--font-body)',
-          boxShadow: '0 4px 20px rgba(124,58,237,0.4)',
-        }}>
+                  }}>
           Rejoindre une partie
         </a>
       </div>

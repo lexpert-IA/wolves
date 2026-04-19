@@ -66,7 +66,8 @@ export default function LobbyPage() {
       <div style={{ textAlign: 'center', marginBottom: 40, maxWidth: 500 }}>
         <div style={{
           width: 64, height: 64, borderRadius: '50%', margin: '0 auto 20px',
-          background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+          background: 'var(--bg-tertiary)',
+          border: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -115,7 +116,7 @@ export default function LobbyPage() {
           <div style={{
             height: '100%', borderRadius: 3,
             width: `${(FAKE_PLAYERS.length / REQUIRED_PLAYERS) * 100}%`,
-            background: 'linear-gradient(90deg, #7c3aed, #6d28d9)',
+            background: '#7c3aed',
             transition: 'width 0.5s ease',
           }} />
         </div>

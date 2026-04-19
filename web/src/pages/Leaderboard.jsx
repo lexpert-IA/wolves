@@ -40,7 +40,7 @@ function BotAvatar({ size = 40, color }) {
   return (
     <div style={{
       width: size, height: size, borderRadius: '50%', flexShrink: 0,
-      background: `linear-gradient(135deg, ${color || '#7c3aed'}, ${(color || '#7c3aed')}88)`,
+      background: color || '#7c3aed',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
       <Bot size={size * 0.45} color="#fff" strokeWidth={2.2} />

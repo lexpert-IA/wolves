@@ -104,7 +104,7 @@ export default function AgeVerification() {
           style={{
             width: '100%', padding: '13px', borderRadius: 10, border: 'none', cursor: 'pointer',
             background: allChecked
-              ? 'linear-gradient(135deg, #7c3aed, #a855f7)'
+              ? '#7c3aed'
               : 'rgba(255,255,255,0.06)',
             color: allChecked ? '#fff' : '#334155',
             fontSize: 14, fontWeight: 700, transition: 'all .2s',
