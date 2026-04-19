@@ -343,9 +343,9 @@ function SetupBanner({ user, config, onActivate }) {
             disabled={loading}
             style={{
               padding: '12px 28px', borderRadius: 10, border: 'none',
-              background: loading ? 'rgba(34,197,94,0.3)' : 'linear-gradient(135deg, #16a34a, #22c55e)',
+              background: loading ? 'rgba(124,58,237,0.3)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)',
               color: '#fff', fontSize: 13, fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer',
-              boxShadow: loading ? 'none' : '0 0 20px rgba(34,197,94,0.35)',
+              boxShadow: loading ? 'none' : '0 0 20px rgba(124,58,237,0.35)',
               transition: 'all .2s', whiteSpace: 'nowrap',
             }}
           >

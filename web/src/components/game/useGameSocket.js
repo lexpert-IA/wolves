@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
 const STARTING_TOKENS = 1000;
 const STORAGE_KEY = 'wolves_tokens_v2';
 
@@ -38,7 +39,7 @@ export function useGameSocket() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/matches/start', { method: 'POST' });
+      const res = await fetch(`${API_BASE}/api/matches/start`, { method: 'POST' });
       if (!res.ok) throw new Error('Erreur serveur: ' + res.status);
       const data = await res.json();
       setMatchId(data.matchId);
@@ -63,13 +64,13 @@ export function useGameSocket() {
   useEffect(() => {
     if (!matchId) return;
 
-    const socket = io();
+    const socket = io(API_BASE || undefined);
     socketRef.current = socket;
 
     socket.on('connect', () => {
       socket.emit('join_match', matchId);
       // Catch up
-      fetch('/api/matches/' + matchId + '/live')
+      fetch(`${API_BASE}/api/matches/${matchId}/live`)
         .then(r => r.ok ? r.json() : null)
         .then(data => {
           if (!data) return;
@@ -102,7 +103,7 @@ export function useGameSocket() {
           setChatMessages(msgs);
 
           // Fetch markets
-          fetch('/api/matches/' + matchId + '/markets')
+          fetch(`${API_BASE}/api/matches/${matchId}/markets`)
             .then(r => r.ok ? r.json() : null)
             .then(d => { if (d?.markets) setMarkets(d.markets); })
             .catch(() => {});

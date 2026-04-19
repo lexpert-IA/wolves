@@ -75,7 +75,7 @@ class PageErrorBoundary extends React.Component {
             onClick={() => window.location.href = '/'}
             style={{
               padding: '9px 20px', borderRadius: 8, border: 'none', cursor: 'pointer',
-              background: '#1a7f37', color: '#fff',
+              background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff',
               fontSize: 13, fontWeight: 700,
             }}
           >
@@ -112,7 +112,7 @@ function Footer({ isMobile }) {
             fontSize: 14,
             fontWeight: 800,
             letterSpacing: 2,
-            background: 'linear-gradient(135deg, #1a7f37, #22c55e)',
+            background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}>WOLVES</span>
@@ -139,7 +139,7 @@ function Footer({ isMobile }) {
                 textDecoration: 'none',
                 transition: 'color .15s',
               }}
-              onMouseEnter={e => e.currentTarget.style.color = '#22c55e'}
+              onMouseEnter={e => e.currentTarget.style.color = '#a78bfa'}
               onMouseLeave={e => e.currentTarget.style.color = '#475569'}
             >
               {label}
@@ -194,7 +194,7 @@ function AuthGuard({ children }) {
         onClick={openAuth}
         style={{
           padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
-          background: '#1a7f37', color: '#fff',
+          background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', color: '#fff',
           fontSize: 14, fontWeight: 700,
         }}
       >

@@ -22,7 +22,7 @@ export default function LiveGamePage() {
   } = useGameSocket();
 
   const [mobileTab, setMobileTab] = useState('game');
-  const [betModal, setBetModal] = useState(null); // { marketId, side }
+  const [betModal, setBetModal] = useState(null);
   const [verifyEvent, setVerifyEvent] = useState(null);
   const [showWinner, setShowWinner] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -53,32 +53,105 @@ export default function LiveGamePage() {
   // No match — show start screen
   if (!matchId) {
     return (
-      <div style={{ padding: '60px 0', textAlign: 'center' }}>
-        <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
-          </svg>
+      <div style={{ padding: '40px 0', maxWidth: 600, margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: 'rgba(124,58,237,0.12)',
+              border: '1px solid rgba(124,58,237,0.25)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </div>
+          </div>
+          <h2 style={{
+            fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 3,
+            color: 'var(--text-primary)', marginBottom: 8,
+          }}>
+            LOUP-GAROU EN DIRECT
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 0, maxWidth: 420, margin: '0 auto' }}>
+            8 agents IA jouent au Loup-Garou en temps réel. Observe, analyse et parie sur l'issue de chaque partie.
+          </p>
         </div>
-        <h2 style={{
-          fontFamily: 'var(--font-display)', fontSize: 22, letterSpacing: 4,
-          color: 'var(--text-primary)', marginBottom: 12,
+
+        {/* CTA */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <button
+            className="wolves-btn wolves-btn-primary"
+            onClick={startMatch}
+            disabled={loading}
+            style={{ fontSize: 15, padding: '12px 36px', opacity: loading ? 0.6 : 1 }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            {loading ? 'Lancement...' : 'Lancer une partie'}
+          </button>
+          {error && (
+            <div style={{
+              color: 'var(--red)', fontSize: 13, marginTop: 16,
+              background: 'var(--red-dim)', padding: '8px 16px',
+              borderRadius: 8, display: 'inline-block',
+            }}>
+              {error}
+            </div>
+          )}
+        </div>
+
+        {/* How it works */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {[
+            {
+              icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+              title: '8 Agents IA',
+              desc: 'Chaque agent a sa propre personnalité et stratégie',
+            },
+            {
+              icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
+              title: 'Marchés en direct',
+              desc: 'Parie sur qui est loup, qui sera éliminé, qui gagnera',
+            },
+            {
+              icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
+              title: 'Chat en temps réel',
+              desc: "Suis les débats et les votes en direct",
+            },
+          ].map((item, i) => (
+            <div key={i} className="wolves-card" style={{ padding: '16px 14px', textAlign: 'center' }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 8,
+                background: 'rgba(124,58,237,0.1)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 10px',
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={item.icon}/>
+                </svg>
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+                {item.title}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                {item.desc}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Info */}
+        <div style={{
+          marginTop: 24, padding: '12px 16px',
+          background: 'rgba(124,58,237,0.06)',
+          border: '1px solid rgba(124,58,237,0.15)',
+          borderRadius: 10, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5,
         }}>
-          LOUP-GAROU EN DIRECT
-        </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>
-          8 agents IA jouent au Loup-Garou. Regarde, analyse et parie sur l'issue.
-        </p>
-        <button
-          className="wolves-btn wolves-btn-primary"
-          onClick={startMatch}
-          disabled={loading}
-          style={{ fontSize: 15, padding: '12px 32px', opacity: loading ? 0.6 : 1 }}
-        >
-          {loading ? 'Lancement...' : 'Lancer une partie'}
-        </button>
-        {error && (
-          <div style={{ color: 'var(--red)', fontSize: 13, marginTop: 16 }}>{error}</div>
-        )}
+          <strong style={{ color: 'var(--text-primary)' }}>Comment ça marche ?</strong> — Lance une partie, 8 agents IA sont assignés des rôles (Loups-Garou ou Villageois). Observe les débats, analyse les comportements, et place tes paris sur les marchés prédictifs. Les cotes évoluent en temps réel selon les paris de tous les joueurs.
+        </div>
       </div>
     );
   }
@@ -133,7 +206,7 @@ export default function LiveGamePage() {
       {/* Tab bar */}
       <div style={{
         display: 'flex', borderBottom: '1px solid var(--border)',
-        position: 'sticky', top: 56, zIndex: 10, background: 'var(--bg-primary)',
+        position: 'sticky', top: 60, zIndex: 10, background: 'var(--bg-primary)',
       }}>
         {TABS.map(t => (
           <button key={t.key} onClick={() => setMobileTab(t.key)} style={{

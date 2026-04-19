@@ -21,9 +21,9 @@ function TabBtn({ active, onClick, children }) {
       style={{
         padding: '8px 18px',
         borderRadius: '7px',
-        border: active ? '1px solid rgba(26,127,55,0.4)' : '1px solid rgba(255,255,255,0.07)',
-        background: active ? 'rgba(26,127,55,0.15)' : 'transparent',
-        color: active ? '#22c55e' : 'var(--text-secondary)',
+        border: active ? '1px solid rgba(124,58,237,0.4)' : '1px solid rgba(255,255,255,0.07)',
+        background: active ? 'rgba(124,58,237,0.15)' : 'transparent',
+        color: active ? '#a78bfa' : 'var(--text-secondary)',
         fontSize: '13px',
         fontWeight: 600,
         cursor: 'pointer',

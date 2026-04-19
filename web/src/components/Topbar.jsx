@@ -178,7 +178,7 @@ export default function Topbar({ walletDisabled = false }) {
                 ) : (
                   <span style={{
                     width: 24, height: 24, borderRadius: '50%',
-                    background: '#1a7f37',
+                    background: 'var(--accent)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 11, fontWeight: 700, color: '#fff',
                   }}>{(user.username || user.pseudo || '?')[0].toUpperCase()}</span>

@@ -122,7 +122,7 @@ function BetsTable() {
             color: i === 0 ? '#fff' : 'var(--text-muted)',
             background: i === 0 ? 'rgba(255,255,255,0.06)' : 'transparent',
             border: 'none', cursor: 'pointer',
-            borderBottom: i === 0 ? '2px solid #1a7f37' : '2px solid transparent',
+            borderBottom: i === 0 ? '2px solid var(--accent)' : '2px solid transparent',
           }}>{tab}</button>
         ))}
       </div>
