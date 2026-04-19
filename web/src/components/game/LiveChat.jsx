@@ -1,15 +1,14 @@
 import React, { useRef, useEffect } from 'react';
 
-const NAME_COLORS = ['#7C3AED','#06B6D4','#10B981','#F59E0B','#EF4444','#3B82F6','#EC4899','#8B5CF6','#14B8A6','#F97316'];
-
+/* ── Consistent player name colors ── */
+const COLORS = ['#7C3AED','#06B6D4','#10B981','#F59E0B','#EF4444','#3B82F6','#EC4899','#8B5CF6','#14B8A6','#F97316'];
 function nameColor(name) {
   let h = 0;
-  for (let i = 0; i < (name || '').length; i++) h = (h * 37 + name.charCodeAt(i)) % NAME_COLORS.length;
-  return NAME_COLORS[Math.abs(h)];
+  for (let i = 0; i < (name || '').length; i++) h = (h * 37 + name.charCodeAt(i)) % COLORS.length;
+  return COLORS[Math.abs(h)];
 }
 
-const phaseLabels = { day: 'JOUR', vote: 'VOTE', night: 'NUIT' };
-const phaseIcons = { day: '\u2600\uFE0F', vote: '\uD83D\uDDF3\uFE0F', night: '\uD83C\uDF19' };
+const PHASE_LABEL = { day: 'JOUR', vote: 'VOTE', night: 'NUIT' };
 
 export default function LiveChat({ messages = [], matchId, onVerify }) {
   const endRef = useRef(null);
@@ -19,105 +18,154 @@ export default function LiveChat({ messages = [], matchId, onVerify }) {
   }, [messages.length]);
 
   return (
-    <div className="wolves-card" style={{
+    <div style={{
       display: 'flex', flexDirection: 'column',
-      height: '100%', minHeight: 300, maxHeight: 480,
-      overflow: 'hidden',
+      height: '100%', minHeight: 280, maxHeight: 500,
+      background: 'var(--bg-secondary)',
+      border: '1px solid rgba(255,255,255,0.06)',
+      borderRadius: 14, overflow: 'hidden',
     }}>
       {/* Header */}
       <div style={{
-        padding: '10px 14px', borderBottom: '1px solid var(--border)',
-        fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 2,
-        color: 'var(--text-secondary)',
+        padding: '12px 16px',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        CHAT EN DIRECT
+        <span style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: '1.5px',
+          color: 'var(--text-secondary)', textTransform: 'uppercase',
+          fontFamily: 'var(--font-body)',
+        }}>
+          Chat en direct
+        </span>
+        <span style={{
+          fontSize: 10, color: 'var(--text-muted)',
+          fontFamily: 'var(--font-mono)',
+        }}>
+          {messages.filter(m => m.type === 'chat').length} msg
+        </span>
       </div>
 
       {/* Messages */}
       <div style={{
-        flex: 1, overflowY: 'auto', padding: '8px 12px',
-        display: 'flex', flexDirection: 'column', gap: 6,
+        flex: 1, overflowY: 'auto', padding: '10px 14px',
+        display: 'flex', flexDirection: 'column', gap: 4,
       }}>
         {messages.map((msg, i) => {
+          /* Phase separator */
           if (msg.type === 'phase') {
             return (
               <div key={i} style={{
-                textAlign: 'center', padding: '8px 0', margin: '4px 0',
+                textAlign: 'center', padding: '10px 0', margin: '4px 0',
               }}>
                 <span style={{
                   display: 'inline-block', padding: '4px 14px',
-                  background: 'var(--accent-dim)', borderRadius: 'var(--radius-sm)',
-                  fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 2,
-                  color: 'var(--text-primary)',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                  borderRadius: 6,
+                  fontSize: 10, fontWeight: 700, letterSpacing: '1.5px',
+                  color: 'var(--text-secondary)',
+                  fontFamily: 'var(--font-body)',
                 }}>
-                  {phaseIcons[msg.phase] || ''} {phaseLabels[msg.phase] || msg.phase} {msg.round ? `R${msg.round}` : ''}
+                  {PHASE_LABEL[msg.phase] || msg.phase} {msg.round ? `· R${msg.round}` : ''}
                 </span>
               </div>
             );
           }
 
+          /* System message */
           if (msg.type === 'system') {
             return (
               <div key={i} style={{
-                fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic',
-                padding: '2px 0',
+                fontSize: 11, color: 'var(--text-muted)', fontStyle: 'italic',
+                padding: '3px 0',
               }}>
                 {msg.text}
               </div>
             );
           }
 
+          /* Elimination */
           if (msg.type === 'elimination') {
             return (
               <div key={i} style={{
-                fontSize: 12, color: 'var(--red)', fontWeight: 600,
-                padding: '3px 0',
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '6px 10px', margin: '2px 0',
+                background: 'rgba(239,68,68,0.06)',
+                border: '1px solid rgba(239,68,68,0.1)',
+                borderRadius: 8, fontSize: 12,
               }}>
-                {'\u2620'} {msg.name} — {msg.method || 'elimine(e)'}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                <span style={{ color: '#EF4444', fontWeight: 600 }}>{msg.name}</span>
+                <span style={{ color: 'var(--text-muted)' }}>— {msg.method || 'elimine(e)'}</span>
               </div>
             );
           }
 
+          /* Vote */
           if (msg.type === 'vote') {
             return (
               <div key={i} style={{
-                fontSize: 11, color: 'var(--text-muted)', padding: '1px 0',
+                fontSize: 11, color: 'var(--text-muted)', padding: '2px 0',
+                display: 'flex', alignItems: 'center', gap: 4,
               }}>
-                {msg.voter} a vote
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{msg.voter}</span> a vote
               </div>
             );
           }
 
+          /* Chat message */
           if (msg.type === 'chat') {
+            const color = nameColor(msg.speaker);
             return (
-              <div key={i} style={{ padding: '3px 0', fontSize: 13, lineHeight: 1.5 }}>
-                <span style={{ fontWeight: 700, color: nameColor(msg.speaker), marginRight: 6 }}>
-                  {msg.speaker}
-                </span>
-                {msg.modelLabel && (
-                  <span className="wolves-badge" style={{
-                    background: 'var(--accent-dim)', color: 'var(--accent)',
-                    marginRight: 6, fontSize: 9, verticalAlign: 'middle',
+              <div key={i} style={{ padding: '4px 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                  {/* Name dot */}
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0 }} />
+                  <span style={{
+                    fontSize: 12, fontWeight: 700, color,
+                    fontFamily: 'var(--font-body)',
                   }}>
-                    {msg.modelLabel}
+                    {msg.speaker}
                   </span>
-                )}
-                <span style={{ color: 'var(--text-primary)' }}>{msg.text}</span>
-                {msg.eventId && onVerify && (
-                  <button
-                    onClick={() => onVerify(msg.eventId)}
-                    style={{
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      marginLeft: 6, fontSize: 13, opacity: 0.5,
-                      transition: 'opacity 0.15s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.opacity = 1}
-                    onMouseLeave={e => e.currentTarget.style.opacity = 0.5}
-                    title="Verifier le prompt LLM"
-                  >
-                    {'\uD83D\uDD0D'}
-                  </button>
-                )}
+                  {msg.modelLabel && (
+                    <span style={{
+                      fontSize: 9, fontWeight: 600, padding: '1px 5px',
+                      borderRadius: 3, background: 'rgba(255,255,255,0.04)',
+                      color: 'var(--text-muted)',
+                    }}>
+                      {msg.modelLabel}
+                    </span>
+                  )}
+                </div>
+                <div style={{
+                  fontSize: 13, color: 'var(--text-primary)',
+                  lineHeight: 1.5, paddingLeft: 12,
+                }}>
+                  {msg.text}
+                  {msg.eventId && onVerify && (
+                    <button
+                      onClick={() => onVerify(msg.eventId)}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        marginLeft: 6, opacity: 0.4, transition: 'opacity 0.15s',
+                        fontSize: 11, color: 'var(--text-muted)',
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                      onMouseLeave={e => e.currentTarget.style.opacity = 0.4}
+                      title="Verifier le prompt LLM"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
             );
           }
