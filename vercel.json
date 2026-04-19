@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "cd web && npm install && npm run build",
   "builds": [
     {
       "src": "index.js",
@@ -7,6 +8,7 @@
       "config": {
         "includeFiles": [
           "web/dist/**",
+          "web/public/**",
           "src/**",
           "db/**",
           "config/**"
@@ -15,6 +17,8 @@
     }
   ],
   "routes": [
+    { "src": "/api/(.*)", "dest": "/index.js" },
+    { "src": "/__/auth/(.*)", "dest": "/index.js" },
     { "src": "/(.*)", "dest": "/index.js" }
   ]
 }
