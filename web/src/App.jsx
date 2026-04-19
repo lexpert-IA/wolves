@@ -13,26 +13,18 @@ import PseudoModal from './components/PseudoModal';
 import ToastManager from './components/ToastManager';
 // LiveFeed removed — not production-ready
 import BottomNav from './components/BottomNav';
-import Feed from './pages/Feed';
-import CreateMarket from './pages/CreateMarket';
+import HomePage from './pages/HomePage';
+import LiveGamePage from './pages/LiveGamePage';
 import Leaderboard from './pages/Leaderboard';
 import Account from './pages/Account';
 import Profile from './pages/Profile';
 import BetlyCopy from './pages/BetlyCopy';
 import MarketDetail from './pages/MarketDetail';
-import TagPage from './pages/TagPage';
-import AdminPage from './pages/AdminPage';
-import AffiliatePage from './pages/AffiliatePage';
-import CreatorDashboard from './pages/CreatorDashboard';
-import VerifyCreator from './pages/VerifyCreator';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import ResponsibleGamingPage from './pages/ResponsibleGamingPage';
 import LegalPage from './pages/LegalPage';
 import PositionsPage from './pages/PositionsPage';
-import SharePage from './pages/SharePage';
-import AgentsPage from './pages/AgentsPage';
-import DocsPage from './pages/DocsPage';
 import AgeVerification from './components/AgeVerification';
 import { BetlyLoaderFullPage, BetlySplashScreen } from './components/BetlyLoader';
 
@@ -43,7 +35,7 @@ class WalletErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { failed: false }; }
   static getDerivedStateFromError() { return { failed: true }; }
   componentDidCatch(err) {
-    console.error('[BETLY] Wallet SDK init failed — running without wallet features:', err.message);
+    console.error('[WOLVES] Wallet SDK init failed — running without wallet features:', err.message);
   }
   render() {
     if (this.state.failed) {
@@ -62,7 +54,7 @@ class PageErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { error: null }; }
   static getDerivedStateFromError(err) { return { error: err }; }
   componentDidCatch(err) {
-    console.error(`[BETLY] Page crash on ${window.location.pathname}:`, err.message, err.stack);
+    console.error(`[WOLVES] Page crash on ${window.location.pathname}:`, err.message, err.stack);
   }
   render() {
     if (this.state.error) {
@@ -115,9 +107,17 @@ function Footer({ isMobile }) {
       }}>
         {/* Left — brand */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <img src="/betly-icon.png" alt="BETLY" style={{ height: 28, borderRadius: 6 }} />
+          <span style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 14,
+            fontWeight: 800,
+            letterSpacing: 2,
+            background: 'linear-gradient(135deg, var(--accent), var(--cyan))',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>WOLVES</span>
           <span style={{ fontSize: 12, color: '#334155' }}>
-            © 2026 BETLY Labs Inc. — République du Panama
+            © 2026 WOLVES Labs — République du Panama
           </span>
         </div>
 
@@ -128,7 +128,7 @@ function Footer({ isMobile }) {
             { label: 'Confidentialité', href: '/privacy' },
             { label: 'Jeu responsable', href: '/responsible-gaming' },
             { label: 'Mentions légales', href: '/legal' },
-            { label: 'Créateurs', href: '/affiliate' },
+            { label: 'Copy Trading', href: '/copy' },
           ].map(({ label, href }) => (
             <a
               key={href}
@@ -156,7 +156,7 @@ function Footer({ isMobile }) {
         color: '#334155',
         lineHeight: 1.5,
       }}>
-        BETLY est une plateforme de marchés de prédiction. Pas un casino. · Les marchés de prédiction comportent un risque de perte en capital. · 18+ uniquement. · Jouez de manière responsable.
+        WOLVES est une plateforme de Loup-Garou IA avec paris en direct. · Les paris comportent un risque de perte. · 18+ uniquement. · Jouez de maniere responsable.
       </div>
     </footer>
   );
@@ -164,26 +164,18 @@ function Footer({ isMobile }) {
 
 function getPage() {
   const path = window.location.pathname;
-  if (path === '/create') return 'create';
+  if (path === '/live') return 'live';
   if (path === '/copy') return 'copy';
   if (path === '/leaderboard') return 'leaderboard';
   if (path === '/account') return 'account';
-  if (path === '/admin') return 'admin';
-  if (path === '/affiliate') return 'affiliate';
-  if (path === '/creator') return 'creator';
-  if (path === '/verify-creator') return 'verify-creator';
   if (path === '/privacy') return 'privacy';
   if (path === '/terms') return 'terms';
   if (path === '/responsible-gaming') return 'responsible-gaming';
   if (path === '/legal') return 'legal';
   if (path === '/positions') return 'positions';
-  if (path === '/agents') return 'agents';
-  if (path === '/docs') return 'docs';
-  if (path.startsWith('/share/')) return 'share';
   if (path.startsWith('/profile/')) return 'profile';
   if (path.startsWith('/market/')) return 'market';
-  if (path.startsWith('/tag/')) return 'tag';
-  return 'feed';
+  return 'home';
 }
 
 // Guard for pages that require auth — shows message with login button (no auto-popup)
@@ -220,12 +212,12 @@ function AppInner({ walletDisabled = false }) {
 
   // Debug: log Dynamic env var on mount
   useEffect(() => {
-    console.log('[BETLY] VITE_DYNAMIC_ENV_ID:', DYNAMIC_ENV_ID ? DYNAMIC_ENV_ID.slice(0, 8) + '…' : 'MISSING');
-    if (walletDisabled) console.warn('[BETLY] Running in no-wallet mode (Dynamic SDK failed)');
+    console.log('[WOLVES] VITE_DYNAMIC_ENV_ID:', DYNAMIC_ENV_ID ? DYNAMIC_ENV_ID.slice(0, 8) + '…' : 'MISSING');
+    if (walletDisabled) console.warn('[WOLVES] Running in no-wallet mode (Dynamic SDK failed)');
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0f' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       {/* Wallet degraded mode bandeau */}
       {walletDisabled && (
         <div style={{
@@ -262,8 +254,8 @@ function AppInner({ walletDisabled = false }) {
           }}
         >
           <PageErrorBoundary key={page}>
-            {page === 'feed'        && <Feed />}
-            {page === 'create'      && <AuthGuard><CreateMarket /></AuthGuard>}
+            {page === 'home'        && <HomePage />}
+            {page === 'live'        && <LiveGamePage />}
             {page === 'copy'        && <BetlyCopy />}
             {page === 'leaderboard' && <Leaderboard />}
             {page === 'account'     && <AuthGuard><Account /></AuthGuard>}
@@ -273,21 +265,11 @@ function AppInner({ walletDisabled = false }) {
             {page === 'profile'     && (
               <Profile profileId={window.location.pathname.split('/profile/')[1]} />
             )}
-            {page === 'tag'         && (
-              <TagPage tag={window.location.pathname.split('/tag/')[1]} />
-            )}
-            {page === 'admin'       && <AdminPage />}
-            {page === 'affiliate'      && <AffiliatePage />}
-            {page === 'creator'        && <CreatorDashboard />}
-            {page === 'verify-creator' && <VerifyCreator />}
             {page === 'privacy'             && <PrivacyPage />}
             {page === 'terms'               && <TermsPage />}
             {page === 'responsible-gaming'  && <ResponsibleGamingPage />}
             {page === 'legal'               && <LegalPage />}
             {page === 'positions'           && <AuthGuard><PositionsPage /></AuthGuard>}
-            {page === 'share'               && <SharePage betId={window.location.pathname.split('/share/')[1]} />}
-            {page === 'agents'              && <AgentsPage />}
-            {page === 'docs'                && <DocsPage />}
           </PageErrorBoundary>
         </main>
 

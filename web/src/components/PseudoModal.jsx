@@ -61,7 +61,7 @@ export default function PseudoModal() {
         },
         body: JSON.stringify({
           username: clean,
-          refCode: localStorage.getItem('betly_ref') || undefined,
+          refCode: localStorage.getItem('wolves_ref') || undefined,
         }),
       });
       const data = await res.json();
@@ -89,13 +89,13 @@ export default function PseudoModal() {
 
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
             <div style={{ marginBottom: 8 }}>
-              <img src="/betly-logo.png" alt="BETLY" style={{ height: 36 }} />
+              <img src="/betly-logo.png" alt="WOLVES" style={{ height: 36 }} />
             </div>
             <p style={{ fontSize: 16, fontWeight: 600, color: '#f8fafc', margin: '0 0 4px' }}>
               Choisis ton pseudo
             </p>
             <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>
-              Ton identité sur Betly · impossible à changer plus tard
+              Ton identité sur Wolves · impossible à changer plus tard
             </p>
           </div>
 
@@ -157,7 +157,7 @@ export default function PseudoModal() {
                 transition: 'all .2s',
               }}
             >
-              {loading ? '⟳ Création...' : 'Rejoindre Betly'}
+              {loading ? '⟳ Création...' : 'Rejoindre Wolves'}
             </button>
           </form>
 

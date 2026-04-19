@@ -19,7 +19,7 @@ export default function PrivacyPage() {
       title: '1. Données collectées',
       content: (
         <>
-          <p style={S.p}>BETLY collecte uniquement les données nécessaires au fonctionnement du service :</p>
+          <p style={S.p}>WOLVES collecte uniquement les données nécessaires au fonctionnement du service :</p>
           <ul style={S.ul}>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Données d'identification</strong> — Adresse email (si inscription email), pseudo choisi, photo de profil Google (si connexion Google).</li>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Données blockchain</strong> — Adresse wallet Polygon publique. Nous ne stockons jamais vos clés privées.</li>
@@ -36,7 +36,7 @@ export default function PrivacyPage() {
         <>
           <p style={S.p}>Vos données sont utilisées exclusivement pour :</p>
           <ul style={S.ul}>
-            <li style={S.li}>Fournir et améliorer le service BETLY.</li>
+            <li style={S.li}>Fournir et améliorer le service WOLVES.</li>
             <li style={S.li}>Prévenir la fraude, le wash trading et les accès non autorisés.</li>
             <li style={S.li}>Envoyer des communications importantes (résolution de marchés, sécurité du compte).</li>
             <li style={S.li}>Respecter nos obligations légales (géoblocage des juridictions restreintes).</li>
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
       title: '3. Partage des données',
       content: (
         <>
-          <p style={S.p}><strong style={{ color: '#22c55e' }}>BETLY ne vend jamais vos données personnelles.</strong></p>
+          <p style={S.p}><strong style={{ color: '#22c55e' }}>WOLVES ne vend jamais vos données personnelles.</strong></p>
           <p style={S.p}>Nous partageons uniquement avec :</p>
           <ul style={S.ul}>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Firebase (Google)</strong> — Authentification et stockage sécurisé. <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#a855f7' }}>Politique Firebase →</a></li>
@@ -64,7 +64,7 @@ export default function PrivacyPage() {
       title: '4. Cookies',
       content: (
         <>
-          <p style={S.p}>BETLY utilise deux types de cookies :</p>
+          <p style={S.p}>WOLVES utilise deux types de cookies :</p>
           <ul style={S.ul}>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Cookies essentiels</strong> — Nécessaires au fonctionnement (session, authentification, préférences de langue). Ne peuvent pas être refusés.</li>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Cookies analytiques</strong> — Mesure d'audience anonymisée pour améliorer l'expérience. Peuvent être refusés.</li>
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Droit de portabilité</strong> — Recevoir vos données dans un format standard (JSON).</li>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Droit de rectification</strong> — Corriger des données inexactes.</li>
           </ul>
-          <p style={S.p}>Pour exercer ces droits : <a href="mailto:privacy@betly.gg" style={{ color: '#a855f7' }}>privacy@betly.gg</a>. Réponse sous 30 jours.</p>
+          <p style={S.p}>Pour exercer ces droits : <a href="mailto:privacy@wolves.world" style={{ color: '#a855f7' }}>privacy@wolves.world</a>. Réponse sous 30 jours.</p>
         </>
       ),
     },
@@ -120,8 +120,8 @@ export default function PrivacyPage() {
           Politique de Confidentialité
         </span>
       </div>
-      <h1 style={S.h1}>Confidentialité — BETLY Labs Inc.</h1>
-      <p style={S.meta}>Dernière mise à jour : 28 mars 2026 · Contact : <a href="mailto:privacy@betly.gg" style={{ color: '#a855f7' }}>privacy@betly.gg</a></p>
+      <h1 style={S.h1}>Confidentialité — WOLVES Labs Inc.</h1>
+      <p style={S.meta}>Dernière mise à jour : 28 mars 2026 · Contact : <a href="mailto:privacy@wolves.world" style={{ color: '#a855f7' }}>privacy@wolves.world</a></p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {sections.map((s, i) => (
@@ -147,7 +147,7 @@ export default function PrivacyPage() {
       </div>
 
       <div style={{ marginTop: 40, padding: '16px 20px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 12, color: '#475569', textAlign: 'center' }}>
-        © 2026 BETLY Labs Inc. — République du Panama · <a href="/terms" style={{ color: '#a855f7' }}>CGU</a> · <a href="/responsible-gaming" style={{ color: '#a855f7' }}>Jeu responsable</a> · <a href="/legal" style={{ color: '#a855f7' }}>Mentions légales</a>
+        © 2026 WOLVES Labs Inc. — République du Panama · <a href="/terms" style={{ color: '#a855f7' }}>CGU</a> · <a href="/responsible-gaming" style={{ color: '#a855f7' }}>Jeu responsable</a> · <a href="/legal" style={{ color: '#a855f7' }}>Mentions légales</a>
       </div>
     </div>
   );

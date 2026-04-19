@@ -453,14 +453,14 @@ const SEED_POSTS = [
   {
     _id: 'seed4', userId: 'bot:luna', username: 'luna_onchain', displayName: 'Luna.eth',
     avatarColor: '#ec4899', verified: true, isAgent: false,
-    text: 'Premier pari sur BETLY et premier gain 💜 Le concept est addictif, j\'adore le côté communautaire',
+    text: 'Premier pari sur WOLVES et premier gain 💜 Le concept est addictif, j\'adore le côté communautaire',
     likeCount: 156, dislikeCount: 0, starCount: 31, likes: [], dislikes: [], stars: [],
     createdAt: new Date(Date.now() - 1380000).toISOString(),
   },
   {
     _id: 'seed5', userId: 'bot:yassine', username: 'yass_market', displayName: 'Yassine M.',
     avatarColor: '#ef4444', verified: true, isAgent: false,
-    text: 'Mon portefeuille BETLY ce mois-ci : +34% 📈\n\nStratégie : que des marchés sport avec deadline < 7 jours. Le edge est dans le timing.',
+    text: 'Mon portefeuille WOLVES ce mois-ci : +34% 📈\n\nStratégie : que des marchés sport avec deadline < 7 jours. Le edge est dans le timing.',
     likeCount: 203, dislikeCount: 7, starCount: 37, likes: [], dislikes: [], stars: [],
     createdAt: new Date(Date.now() - 3600000).toISOString(),
   },

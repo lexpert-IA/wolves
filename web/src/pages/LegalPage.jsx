@@ -25,12 +25,12 @@ export default function LegalPage() {
       {/* Identité */}
       <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '20px 24px', marginBottom: 24 }}>
         {[
-          { label: 'Entité',          value: 'BETLY Labs Inc.' },
+          { label: 'Entité',          value: 'WOLVES Labs Inc.' },
           { label: 'Type',            value: 'Société anonyme' },
           { label: 'Juridiction',     value: 'République du Panama' },
-          { label: 'Contact légal',   value: 'legal@betly.gg' },
-          { label: 'Contact privacy', value: 'privacy@betly.gg' },
-          { label: 'Contact support', value: 'support@betly.gg' },
+          { label: 'Contact légal',   value: 'legal@wolves.world' },
+          { label: 'Contact privacy', value: 'privacy@wolves.world' },
+          { label: 'Contact support', value: 'support@wolves.world' },
         ].map(({ label, value }) => (
           <div key={label} style={S.row}>
             <span style={S.lbl}>{label}</span>
@@ -40,11 +40,11 @@ export default function LegalPage() {
       </div>
 
       <h2 style={S.h2}>Nature de la plateforme</h2>
-      <p style={S.p}>BETLY est une plateforme de <strong style={{ color: '#f8fafc' }}>marchés de prédiction</strong> basée sur la technologie blockchain (réseau Polygon). BETLY n'est pas un casino, un opérateur de jeux d'argent au sens traditionnel, ni un prestataire de services d'investissement.</p>
-      <p style={S.p}><strong style={{ color: '#f8fafc' }}>BETLY n'est pas régulé en tant qu'opérateur de jeux d'argent</strong> dans les juridictions restreintes listées dans nos CGU. Les utilisateurs sont seuls responsables du respect des lois locales applicables dans leur pays de résidence.</p>
+      <p style={S.p}>WOLVES est une plateforme de <strong style={{ color: '#f8fafc' }}>marchés de prédiction</strong> basée sur la technologie blockchain (réseau Polygon). WOLVES n'est pas un casino, un opérateur de jeux d'argent au sens traditionnel, ni un prestataire de services d'investissement.</p>
+      <p style={S.p}><strong style={{ color: '#f8fafc' }}>WOLVES n'est pas régulé en tant qu'opérateur de jeux d'argent</strong> dans les juridictions restreintes listées dans nos CGU. Les utilisateurs sont seuls responsables du respect des lois locales applicables dans leur pays de résidence.</p>
 
       <h2 style={S.h2}>Avertissement financier</h2>
-      <p style={S.p}>Les marchés de prédiction comportent des risques financiers. Vous pouvez perdre l'intégralité des fonds engagés. BETLY ne constitue pas un conseil financier ou d'investissement. Les performances passées ne préjugent pas des résultats futurs.</p>
+      <p style={S.p}>Les marchés de prédiction comportent des risques financiers. Vous pouvez perdre l'intégralité des fonds engagés. WOLVES ne constitue pas un conseil financier ou d'investissement. Les performances passées ne préjugent pas des résultats futurs.</p>
 
       <h2 style={S.h2}>Hébergement technique</h2>
       <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '16px 20px', marginBottom: 12 }}>
@@ -63,13 +63,13 @@ export default function LegalPage() {
       </div>
 
       <h2 style={S.h2}>Propriété intellectuelle</h2>
-      <p style={S.p}>L'ensemble du contenu, logo, design et code source de BETLY est protégé par les droits de propriété intellectuelle de BETLY Labs Inc. Toute reproduction non autorisée est interdite.</p>
+      <p style={S.p}>L'ensemble du contenu, logo, design et code source de WOLVES est protégé par les droits de propriété intellectuelle de WOLVES Labs Inc. Toute reproduction non autorisée est interdite.</p>
 
       <h2 style={S.h2}>Droit applicable</h2>
-      <p style={S.p}>Ces mentions légales et l'ensemble de l'activité de BETLY sont régis par les lois de la République du Panama. Tout litige sera soumis à la compétence exclusive des tribunaux panaméens.</p>
+      <p style={S.p}>Ces mentions légales et l'ensemble de l'activité de WOLVES sont régis par les lois de la République du Panama. Tout litige sera soumis à la compétence exclusive des tribunaux panaméens.</p>
 
       <div style={{ marginTop: 40, padding: '14px 20px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 12, color: '#475569', textAlign: 'center' }}>
-        © 2026 BETLY Labs Inc. · <a href="/terms" style={{ color: '#a855f7' }}>CGU</a> · <a href="/privacy" style={{ color: '#a855f7' }}>Confidentialité</a> · <a href="/responsible-gaming" style={{ color: '#a855f7' }}>Jeu responsable</a>
+        © 2026 WOLVES Labs Inc. · <a href="/terms" style={{ color: '#a855f7' }}>CGU</a> · <a href="/privacy" style={{ color: '#a855f7' }}>Confidentialité</a> · <a href="/responsible-gaming" style={{ color: '#a855f7' }}>Jeu responsable</a>
       </div>
     </div>
   );

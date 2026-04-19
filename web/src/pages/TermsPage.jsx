@@ -23,8 +23,8 @@ export default function TermsPage() {
       title: '1. Introduction',
       content: (
         <>
-          <p style={S.p}>BETLY est une plateforme de marchés de prédiction communautaires opérée par <strong style={{ color: '#f8fafc' }}>BETLY Labs Inc.</strong>, société enregistrée en République du Panama.</p>
-          <p style={S.p}>En accédant à BETLY, vous acceptez d'être lié par ces Conditions Générales d'Utilisation (CGU). Veuillez les lire attentivement avant d'utiliser notre service.</p>
+          <p style={S.p}>WOLVES est une plateforme de marchés de prédiction communautaires opérée par <strong style={{ color: '#f8fafc' }}>WOLVES Labs Inc.</strong>, société enregistrée en République du Panama.</p>
+          <p style={S.p}>En accédant à WOLVES, vous acceptez d'être lié par ces Conditions Générales d'Utilisation (CGU). Veuillez les lire attentivement avant d'utiliser notre service.</p>
           <p style={S.p}>Date de dernière mise à jour : 28 mars 2026.</p>
         </>
       ),
@@ -33,12 +33,12 @@ export default function TermsPage() {
       title: '2. Juridictions restreintes',
       content: (
         <>
-          <div style={S.warn}>Si vous résidez dans une juridiction restreinte, vous n'êtes pas autorisé à utiliser les fonctionnalités de trading de BETLY.</div>
+          <div style={S.warn}>Si vous résidez dans une juridiction restreinte, vous n'êtes pas autorisé à utiliser les fonctionnalités de trading de WOLVES.</div>
           <p style={S.p}>Les utilisateurs résidant dans les pays et régions suivants ne sont pas autorisés à placer des paris ou créer des marchés :</p>
           <ul style={S.ul}>
             {RESTRICTED.map(c => <li key={c} style={S.li}>{c}</li>)}
           </ul>
-          <p style={S.p}>L'utilisation d'un VPN ou de tout autre moyen technique pour contourner ces restrictions géographiques est <strong style={{ color: '#f87171' }}>strictement interdite</strong> et constitue une violation de ces CGU. BETLY se réserve le droit de suspendre immédiatement tout compte suspect.</p>
+          <p style={S.p}>L'utilisation d'un VPN ou de tout autre moyen technique pour contourner ces restrictions géographiques est <strong style={{ color: '#f87171' }}>strictement interdite</strong> et constitue une violation de ces CGU. WOLVES se réserve le droit de suspendre immédiatement tout compte suspect.</p>
         </>
       ),
     },
@@ -46,10 +46,10 @@ export default function TermsPage() {
       title: '3. Conditions d\'utilisation',
       content: (
         <>
-          <p style={S.p}>En utilisant BETLY, vous certifiez :</p>
+          <p style={S.p}>En utilisant WOLVES, vous certifiez :</p>
           <ul style={S.ul}>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Avoir au minimum 18 ans.</strong> L'accès est strictement interdit aux mineurs.</li>
-            <li style={S.li}>Être titulaire d'un seul compte BETLY. Les comptes multiples sont interdits et entraîneront la suspension de tous les comptes concernés.</li>
+            <li style={S.li}>Être titulaire d'un seul compte WOLVES. Les comptes multiples sont interdits et entraîneront la suspension de tous les comptes concernés.</li>
             <li style={S.li}>Ne pas manipuler les marchés, notamment par le wash trading, l'injection artificielle de liquidités, ou toute forme de coordination visant à fausser les prix.</li>
             <li style={S.li}>Ne pas créer de marchés dont vous pouvez directement influencer le résultat sans le déclarer explicitement (cf. avertissement "Marché auto" sur votre profil créateur).</li>
             <li style={S.li}>Respecter les lois applicables dans votre juridiction de résidence.</li>
@@ -61,13 +61,13 @@ export default function TermsPage() {
       title: '4. Marchés et résolution Oracle',
       content: (
         <>
-          <p style={S.p}>BETLY utilise un système Oracle à trois niveaux pour la résolution des marchés :</p>
+          <p style={S.p}>WOLVES utilise un système Oracle à trois niveaux pour la résolution des marchés :</p>
           <ul style={S.ul}>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Oracle L1</strong> — Résolution automatique via sources de données publiques vérifiables (APIs officielles, données on-chain).</li>
             <li style={S.li}><strong style={{ color: '#f8fafc' }}>Oracle L2</strong> — Résolution par vote communautaire pondéré par la réputation.</li>
-            <li style={S.li}><strong style={{ color: '#f8fafc' }}>Oracle L3</strong> — Arbitrage manuel par l'équipe BETLY en cas de litige.</li>
+            <li style={S.li}><strong style={{ color: '#f8fafc' }}>Oracle L3</strong> — Arbitrage manuel par l'équipe WOLVES en cas de litige.</li>
           </ul>
-          <p style={S.p}><strong style={{ color: '#f8fafc' }}>BETLY n'est pas responsable</strong> des erreurs ou retards dans la résolution des marchés. Les décisions Oracle sont finales sauf recours explicite dans les 48h suivant la résolution.</p>
+          <p style={S.p}><strong style={{ color: '#f8fafc' }}>WOLVES n'est pas responsable</strong> des erreurs ou retards dans la résolution des marchés. Les décisions Oracle sont finales sauf recours explicite dans les 48h suivant la résolution.</p>
         </>
       ),
     },
@@ -77,7 +77,7 @@ export default function TermsPage() {
         <>
           <div style={S.info}>Les marchés de prédiction comportent des risques financiers substantiels.</div>
           <p style={S.p}>Vous pouvez perdre <strong style={{ color: '#f87171' }}>l'intégralité des fonds misés</strong>. Ne pariez jamais plus que ce que vous pouvez vous permettre de perdre.</p>
-          <p style={S.p}><strong style={{ color: '#f8fafc' }}>BETLY ne constitue pas un conseil financier, d'investissement ou juridique.</strong> Toutes les informations disponibles sur la plateforme sont fournies à titre informatif uniquement.</p>
+          <p style={S.p}><strong style={{ color: '#f8fafc' }}>WOLVES ne constitue pas un conseil financier, d'investissement ou juridique.</strong> Toutes les informations disponibles sur la plateforme sont fournies à titre informatif uniquement.</p>
           <p style={S.p}>Les performances passées ne préjugent pas des résultats futurs.</p>
         </>
       ),
@@ -86,27 +86,27 @@ export default function TermsPage() {
       title: '6. Frais et commissions',
       content: (
         <>
-          <p style={S.p}>BETLY applique la structure de frais suivante, affichée clairement avant chaque transaction :</p>
+          <p style={S.p}>WOLVES applique la structure de frais suivante, affichée clairement avant chaque transaction :</p>
           <ul style={S.ul}>
             <li style={S.li}><strong style={{ color: '#a855f7' }}>3% de frais de plateforme</strong> prélevés sur chaque marché résolu.</li>
             <li style={S.li}><strong style={{ color: '#06b6d4' }}>2% de frais créateur</strong> reversés au créateur du marché lors de la résolution.</li>
             <li style={S.li}><strong style={{ color: '#22c55e' }}>3–5% de commission de parrainage</strong> pour les créateurs avec liens d'affiliation actifs.</li>
           </ul>
-          <p style={S.p}>Aucuns frais de dépôt ou de retrait ne sont appliqués par BETLY. Des frais de réseau Polygon peuvent s'appliquer.</p>
+          <p style={S.p}>Aucuns frais de dépôt ou de retrait ne sont appliqués par WOLVES. Des frais de réseau Polygon peuvent s'appliquer.</p>
         </>
       ),
     },
     {
       title: '7. Propriété intellectuelle',
       content: (
-        <p style={S.p}>L'ensemble du contenu de BETLY — logo, design, code, textes, algorithmes — appartient à BETLY Labs Inc. ou à ses concédants, sauf mention contraire. Toute reproduction, modification ou distribution non autorisée est interdite.</p>
+        <p style={S.p}>L'ensemble du contenu de WOLVES — logo, design, code, textes, algorithmes — appartient à WOLVES Labs Inc. ou à ses concédants, sauf mention contraire. Toute reproduction, modification ou distribution non autorisée est interdite.</p>
       ),
     },
     {
       title: '8. Limitation de responsabilité',
       content: (
         <>
-          <p style={S.p}>Dans les limites permises par la loi applicable, BETLY et ses dirigeants, employés et agents ne peuvent être tenus responsables :</p>
+          <p style={S.p}>Dans les limites permises par la loi applicable, WOLVES et ses dirigeants, employés et agents ne peuvent être tenus responsables :</p>
           <ul style={S.ul}>
             <li style={S.li}>Des pertes financières résultant de l'utilisation de la plateforme.</li>
             <li style={S.li}>Des interruptions de service ou indisponibilités techniques.</li>
@@ -121,14 +121,14 @@ export default function TermsPage() {
       content: (
         <>
           <p style={S.p}>Ces CGU sont régies par les lois de la <strong style={{ color: '#f8fafc' }}>République du Panama</strong>.</p>
-          <p style={S.p}>Tout litige découlant de l'utilisation de BETLY sera résolu par arbitrage contraignant au Panama, selon les règles de la Chambre de Commerce de Panama. <strong style={{ color: '#f8fafc' }}>Aucune action collective n'est autorisée.</strong></p>
+          <p style={S.p}>Tout litige découlant de l'utilisation de WOLVES sera résolu par arbitrage contraignant au Panama, selon les règles de la Chambre de Commerce de Panama. <strong style={{ color: '#f8fafc' }}>Aucune action collective n'est autorisée.</strong></p>
         </>
       ),
     },
     {
       title: '10. Modifications des CGU',
       content: (
-        <p style={S.p}>BETLY se réserve le droit de modifier ces CGU à tout moment. Les modifications seront notifiées par email et/ou notification in-app. La poursuite de l'utilisation de BETLY après notification vaut acceptation des nouvelles conditions.</p>
+        <p style={S.p}>WOLVES se réserve le droit de modifier ces CGU à tout moment. Les modifications seront notifiées par email et/ou notification in-app. La poursuite de l'utilisation de WOLVES après notification vaut acceptation des nouvelles conditions.</p>
       ),
     },
   ];
@@ -143,8 +143,8 @@ export default function TermsPage() {
           Conditions Générales d'Utilisation
         </span>
       </div>
-      <h1 style={S.h1}>CGU — BETLY Labs Inc.</h1>
-      <p style={S.meta}>Dernière mise à jour : 28 mars 2026 · Version 1.0 · Juridiction : Panama · Contact : <a href="mailto:legal@betly.gg" style={{ color: '#a855f7' }}>legal@betly.gg</a></p>
+      <h1 style={S.h1}>CGU — WOLVES Labs Inc.</h1>
+      <p style={S.meta}>Dernière mise à jour : 28 mars 2026 · Version 1.0 · Juridiction : Panama · Contact : <a href="mailto:legal@wolves.world" style={{ color: '#a855f7' }}>legal@wolves.world</a></p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {sections.map((s, i) => (
@@ -173,7 +173,7 @@ export default function TermsPage() {
       </div>
 
       <div style={{ marginTop: 40, padding: '16px 20px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 12, color: '#475569', textAlign: 'center' }}>
-        © 2026 BETLY Labs Inc. — République du Panama · <a href="/privacy" style={{ color: '#a855f7' }}>Confidentialité</a> · <a href="/responsible-gaming" style={{ color: '#a855f7' }}>Jeu responsable</a> · <a href="/legal" style={{ color: '#a855f7' }}>Mentions légales</a>
+        © 2026 WOLVES Labs Inc. — République du Panama · <a href="/privacy" style={{ color: '#a855f7' }}>Confidentialité</a> · <a href="/responsible-gaming" style={{ color: '#a855f7' }}>Jeu responsable</a> · <a href="/legal" style={{ color: '#a855f7' }}>Mentions légales</a>
       </div>
     </div>
   );

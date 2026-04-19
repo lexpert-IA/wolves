@@ -44,7 +44,7 @@ function ShareButton({ market, yes, volume }) {
   function shareOnX() {
     const url   = window.location.href;
     const title = market?.title || '';
-    const text  = `Je parie OUI sur "${title.slice(0, 60)}" à ${yes}%\nRejoins BETLY → ${url}`;
+    const text  = `Je parie OUI sur "${title.slice(0, 60)}" à ${yes}%\nRejoins WOLVES → ${url}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
     setOpen(false);
   }
@@ -1052,7 +1052,7 @@ function Accordion({ title, children, defaultOpen = false }) {
 // ── Win Popup (big win > 100 USDC) ────────────────────────────────────────────
 function WinPopup({ bet, market, onClose }) {
   const gain = bet.payout && bet.amount ? (bet.payout - bet.amount).toFixed(2) : null;
-  const tweetText = `Je viens de gagner +$${gain} sur BETLY\n"${market?.title?.slice(0, 60)}"\n→ betly.gg/market/${market?._id}`;
+  const tweetText = `Je viens de gagner +$${gain} sur WOLVES\n"${market?.title?.slice(0, 60)}"\n→ wolves.world/market/${market?._id}`;
 
   useEffect(() => {
     fireWin();

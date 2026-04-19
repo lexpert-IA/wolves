@@ -19,9 +19,9 @@ export default function ResponsibleGamingPage() {
         </span>
       </div>
       <h1 style={{ fontSize: 26, fontWeight: 900, color: '#f8fafc', marginBottom: 6 }}>Jeu responsable</h1>
-      <p style={{ fontSize: 12, color: '#475569', marginBottom: 32 }}>BETLY Labs Inc. · République du Panama</p>
+      <p style={{ fontSize: 12, color: '#475569', marginBottom: 32 }}>WOLVES Labs Inc. · République du Panama</p>
 
-      <p style={S.p}>BETLY encourage un jeu responsable et transparent. Nous mettons à disposition des outils de protection et des ressources pour vous aider à garder le contrôle.</p>
+      <p style={S.p}>WOLVES encourage un jeu responsable et transparent. Nous mettons à disposition des outils de protection et des ressources pour vous aider à garder le contrôle.</p>
 
       {/* Outils */}
       <h2 style={{ fontSize: 16, fontWeight: 800, color: '#f8fafc', marginTop: 32, marginBottom: 16, paddingBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
@@ -93,16 +93,16 @@ export default function ResponsibleGamingPage() {
         ))}
       </div>
 
-      {/* BETLY policy */}
+      {/* WOLVES policy */}
       <div style={{ padding: '16px 20px', borderRadius: 12, background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 28 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#f87171', marginBottom: 6 }}>Engagement BETLY</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#f87171', marginBottom: 6 }}>Engagement WOLVES</div>
         <p style={{ ...S.p, marginBottom: 0 }}>
-          BETLY se réserve le droit de suspendre ou restreindre tout compte présentant des signes de comportement problématique, indépendamment de la demande de l'utilisateur. La protection de nos utilisateurs prime sur tout impératif commercial.
+          WOLVES se réserve le droit de suspendre ou restreindre tout compte présentant des signes de comportement problématique, indépendamment de la demande de l'utilisateur. La protection de nos utilisateurs prime sur tout impératif commercial.
         </p>
       </div>
 
       <div style={{ padding: '14px 18px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 12, color: '#475569', textAlign: 'center' }}>
-        Pour auto-exclusion ou limite d'urgence : <a href="mailto:support@betly.gg" style={{ color: '#a855f7' }}>support@betly.gg</a> · Réponse sous 4h
+        Pour auto-exclusion ou limite d'urgence : <a href="mailto:support@wolves.world" style={{ color: '#a855f7' }}>support@wolves.world</a> · Réponse sous 4h
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ export default function ShareModal({ variant = 'placed', bet, market, onClose })
       `Tu penses que j'ai tort ? Prends le ${bet?.side === 'YES' ? 'NON' : 'OUI'} →`,
       shareUrl,
       '',
-      '#BETLY',
+      '#WOLVES',
     ].join('\n'),
 
     won: [
@@ -38,10 +38,10 @@ export default function ShareModal({ variant = 'placed', bet, market, onClose })
       '',
       bet?.payout && bet?.amount
         ? `+$${(bet.payout - bet.amount).toFixed(2)} encaissés · ROI +${Math.round(((bet.payout - bet.amount) / bet.amount) * 100)}%`
-        : 'Pari gagné sur BETLY',
+        : 'Pari gagné sur WOLVES',
       '',
       shareUrl,
-      '#BETLY',
+      '#WOLVES',
     ].join('\n'),
 
     live: [
@@ -50,7 +50,7 @@ export default function ShareModal({ variant = 'placed', bet, market, onClose })
       '',
       `Qu'est-ce que tu en penses ?`,
       marketUrl,
-      '#BETLY',
+      '#WOLVES',
     ].join('\n'),
 
     challenge: [
@@ -59,7 +59,7 @@ export default function ShareModal({ variant = 'placed', bet, market, onClose })
       '',
       `Prouve que j'ai tort →`,
       shareUrl,
-      '#BETLY',
+      '#WOLVES',
     ].join('\n'),
   };
 
