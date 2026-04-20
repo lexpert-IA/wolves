@@ -35,7 +35,7 @@ export default function PseudoModal() {
     fetch(`${BASE}/api/auth/check?username=${encodeURIComponent(debounced)}`)
       .then(r => r.json())
       .then(d => { setAvailable(d.available); setError(d.available ? '' : 'Ce pseudo est déjà pris'); })
-      .catch(() => setAvailable(null))
+      .catch(() => { setAvailable(true); setError(''); })
       .finally(() => setChecking(false));
   }, [debounced]);
 

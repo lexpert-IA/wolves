@@ -1,39 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useAuth } from '../hooks/useAuth';
 
-/* ── 20 AI Agents — real data ── */
+/* ── 15 AI Agents — 3 categories × 5 ── */
 const AGENTS = [
-  { src: '/characters/char-01.png', name: 'Elena', arch: 'La Glaciaire', desc: 'Froide et analytique. Ne parle que si elle a une preuve.' },
-  { src: '/characters/char-02.png', name: 'Silas', arch: 'Le Murmure', desc: 'Prudent, phrases courtes et percutantes. Influence en silence.' },
-  { src: '/characters/char-03.png', name: 'Victor', arch: "L'Ancien", desc: 'Paternaliste et sage. Punit l\'agressivite inutile.' },
-  { src: '/characters/char-04.png', name: 'Clara', arch: 'La Detective', desc: 'Obsessionnelle. Si tu te contredis, elle te saute a la gorge.' },
-  { src: '/characters/char-05.png', name: 'Marcus', arch: 'Le Bourreau', desc: 'Accuse fort des le Tour 1. Cree le chaos avec passion.' },
-  { src: '/characters/char-06.png', name: 'Billy', arch: 'Le Joker', desc: 'Humour noir, provocateur. Esprit de meneur rebelle.' },
-  { src: '/characters/char-07.png', name: 'Jax', arch: "L'Anarchiste", desc: 'Rebelle. Deteste les leaders, langage direct et familier.' },
-  { src: '/characters/char-08.png', name: 'Zara', arch: 'La Furie', desc: 'Ultra-defensive si accusee. Joue sur le sentiment d\'injustice.' },
-  { src: '/characters/char-09.png', name: 'Hugo', arch: 'Le Parano', desc: 'Panique vite, change de vote a la derniere seconde.' },
-  { src: '/characters/char-10.png', name: 'Luna', arch: 'La Reveuse', desc: 'Poetique et deconnectee. Votes bases sur des details absurdes.' },
-  { src: '/characters/char-11.png', name: 'Ben', arch: 'Le Loyaliste', desc: 'Tres tetu. Protege ses allies aveuglement jusqu\'a la mort.' },
-  { src: '/characters/char-12.png', name: 'Tess', arch: "L'Inconstante", desc: 'Joueuse imprevisible. Peut trahir son camp juste pour le fun.' },
-  { src: '/characters/char-13.png', name: 'Arthur', arch: 'Le Suiveur', desc: 'Vote comme la majorite. Un observateur silencieux.' },
-  { src: '/characters/char-14.png', name: 'Yuna', arch: "L'Observatrice", desc: 'Discrete, mais quand elle parle, c\'est pour tuer.' },
-  { src: '/characters/char-15.png', name: 'Basile', arch: 'Le Timide', desc: 'Hesitant, doux. Utilise des "peut-etre" et des "je ne sais pas".' },
-  { src: '/characters/char-16.png', name: 'Iris', arch: 'La Sentinelle', desc: 'Protectrice feeroce. Defend ses allies sans hesiter.' },
-  { src: '/characters/char-17.png', name: 'Kael', arch: 'Le Cynique', desc: 'Moqueur et condescendant, mais souvent tres juste.' },
-  { src: '/characters/char-18.png', name: 'Sora', arch: "L'Optimiste", desc: 'Veut que tout le monde s\'entende. Deteste les conflits.' },
-  { src: '/characters/char-19.png', name: 'Rocco', arch: 'Le Sheriff', desc: 'Autoritaire. Donne des ordres de vote, deplore chaque perte.' },
-  { src: '/characters/char-01.png', name: 'Leia', arch: 'La Mystique', desc: 'Parle de "vibrations". Manipulation maitrisee, intuitions divines.' },
+  // ORDRE — strategiques, analytiques, froids
+  { src: '/characters/char-06.png', name: 'Elena', arch: 'La Glaciaire', cat: 'ordre',
+    desc: 'Froide et analytique. Ne parle que si elle a une preuve.',
+    personality: 'Ancienne IA de surveillance reconvertie. Chaque mot est calcule, chaque silence est une arme.',
+    stats: { analyse: 90, bavard: 20, manipulation: 40, sangFroid: 95 } },
+  { src: '/characters/char-02.png', name: 'Silas', arch: 'Le Murmure', cat: 'ordre',
+    desc: 'Prudent, phrases courtes. Influence en silence.',
+    personality: 'Observe tout, ne dit presque rien. Quand il parle, tout le village ecoute.',
+    stats: { analyse: 75, bavard: 15, manipulation: 80, sangFroid: 85 } },
+  { src: '/characters/char-04.png', name: 'Victor', arch: "L'Ancien", cat: 'ordre',
+    desc: 'Paternaliste et sage. Punit l\'agressivite inutile.',
+    personality: 'Le doyen du village. Sa sagesse inspire confiance — ou un faux sentiment de securite.',
+    stats: { analyse: 80, bavard: 50, manipulation: 30, sangFroid: 90 } },
+  { src: '/characters/char-15.png', name: 'Clara', arch: 'La Detective', cat: 'ordre',
+    desc: 'Obsessionnelle. Si tu te contredis, elle te saute a la gorge.',
+    personality: 'Prend des notes mentales sur chaque intervention. Ses accusations sont chirurgicales.',
+    stats: { analyse: 95, bavard: 60, manipulation: 35, sangFroid: 70 } },
+  { src: '/characters/char-12.png', name: 'Ben', arch: 'Le Loyaliste', cat: 'ordre',
+    desc: 'Tres tetu. Protege ses allies aveuglement.',
+    personality: 'Une fois qu\'il te fait confiance, il mourra pour toi. Le probleme : il se trompe souvent.',
+    stats: { analyse: 40, bavard: 45, manipulation: 10, sangFroid: 80 } },
+
+  // CHAOS — agressifs, imprevisibles, rebelles
+  { src: '/characters/char-03.png', name: 'Marcus', arch: 'Le Bourreau', cat: 'chaos',
+    desc: 'Accuse fort des le Tour 1. Cree le chaos avec passion.',
+    personality: 'Pas de subtilite. Il pointe du doigt et hurle. Parfois il a raison, souvent il seme la panique.',
+    stats: { analyse: 35, bavard: 85, manipulation: 70, sangFroid: 25 } },
+  { src: '/characters/char-11.png', name: 'Billy', arch: 'Le Joker', cat: 'chaos',
+    desc: 'Humour noir, provocateur. Esprit de meneur rebelle.',
+    personality: 'Transforme chaque debat en spectacle. Derriere les blagues, un esprit tactique redoutable.',
+    stats: { analyse: 60, bavard: 90, manipulation: 85, sangFroid: 50 } },
+  { src: '/characters/char-07.png', name: 'Jax', arch: "L'Anarchiste", cat: 'chaos',
+    desc: 'Rebelle. Deteste les leaders, langage direct.',
+    personality: 'Refuse toute autorite. Vote contre le consensus par principe. Impredictible et dangereux.',
+    stats: { analyse: 30, bavard: 75, manipulation: 40, sangFroid: 20 } },
+  { src: '/characters/char-05.png', name: 'Zara', arch: 'La Furie', cat: 'chaos',
+    desc: 'Ultra-defensive si accusee. Joue sur l\'injustice.',
+    personality: 'Explose a la moindre accusation. Sa colere est sincere — ou parfaitement simulee.',
+    stats: { analyse: 45, bavard: 80, manipulation: 55, sangFroid: 15 } },
+  { src: '/characters/char-16.png', name: 'Kael', arch: 'Le Cynique', cat: 'chaos',
+    desc: 'Moqueur et condescendant, mais souvent tres juste.',
+    personality: 'Se moque de tout le monde mais ses analyses sont d\'une precision terrifiante.',
+    stats: { analyse: 85, bavard: 55, manipulation: 65, sangFroid: 70 } },
+
+  // EQUILIBRE — neutres, observateurs, ambigus
+  { src: '/characters/char-08.png', name: 'Hugo', arch: 'Le Parano', cat: 'equilibre',
+    desc: 'Panique vite, change de vote a la derniere seconde.',
+    personality: 'Voit des complots partout. Son stress est contagieux et brouille les pistes.',
+    stats: { analyse: 50, bavard: 65, manipulation: 20, sangFroid: 10 } },
+  { src: '/characters/char-17.png', name: 'Luna', arch: 'La Reveuse', cat: 'equilibre',
+    desc: 'Poetique et deconnectee. Votes bases sur des details absurdes.',
+    personality: 'Parle de la lune et des etoiles pendant un debat. Personne ne sait si elle est geniale ou folle.',
+    stats: { analyse: 30, bavard: 40, manipulation: 15, sangFroid: 60 } },
+  { src: '/characters/char-14.png', name: 'Tess', arch: "L'Inconstante", cat: 'equilibre',
+    desc: 'Imprevisible. Peut trahir son camp juste pour le fun.',
+    personality: 'Change d\'avis comme de chemise. Alliance aujourd\'hui, trahison demain. Pur chaos neutre.',
+    stats: { analyse: 55, bavard: 70, manipulation: 75, sangFroid: 35 } },
+  { src: '/characters/char-09.png', name: 'Leia', arch: 'La Mystique', cat: 'equilibre',
+    desc: 'Parle de "vibrations". Manipulation maitrisee.',
+    personality: 'Pretend lire les auras. Ses "intuitions divines" tombent juste un peu trop souvent.',
+    stats: { analyse: 70, bavard: 50, manipulation: 90, sangFroid: 75 } },
+  { src: '/characters/char-19.png', name: 'Rocco', arch: 'Le Sheriff', cat: 'equilibre',
+    desc: 'Autoritaire. Donne des ordres de vote.',
+    personality: 'S\'auto-proclame chef. Organise les votes, deplore chaque perte comme un echec personnel.',
+    stats: { analyse: 65, bavard: 80, manipulation: 45, sangFroid: 65 } },
 ];
 
-/* ── Color by archetype category ── */
-function archColor(arch) {
-  if (['La Glaciaire', 'Le Murmure', "L'Ancien", 'La Detective'].includes(arch)) return '#06b6d4';
-  if (['Le Bourreau', 'Le Joker', "L'Anarchiste", 'La Furie'].includes(arch)) return '#ef4444';
-  if (['Le Parano', 'La Reveuse', 'Le Loyaliste', "L'Inconstante"].includes(arch)) return '#f59e0b';
-  if (['Le Suiveur', "L'Observatrice", 'Le Timide', 'La Sentinelle'].includes(arch)) return '#22c55e';
-  return '#a855f7';
-}
+const CAT_META = {
+  ordre:     { label: 'Ordre',     color: '#06b6d4', icon: '🧊', desc: 'Strategiques & analytiques' },
+  chaos:     { label: 'Chaos',     color: '#ef4444', icon: '🔥', desc: 'Agressifs & imprevisibles' },
+  equilibre: { label: 'Equilibre', color: '#a855f7', icon: '⚖️', desc: 'Neutres & ambigus' },
+};
+
+const TABS = [
+  { key: 'all', label: 'Tous' },
+  { key: 'ordre', label: 'Ordre' },
+  { key: 'chaos', label: 'Chaos' },
+  { key: 'equilibre', label: 'Equilibre' },
+];
 
 const GAME_CARDS = [
   { name: 'Pleine Lune', href: '/game/pleine-lune', players: 12, gradient: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' },
@@ -48,71 +97,178 @@ const FEATURES = [
   { badge: 'Beta', badgeColor: '#f59e0b', title: 'Tournois', desc: 'Tournois quotidiens avec prize pool. Inscriptions bientot ouvertes.', href: '/leaderboard' },
 ];
 
-/* ── Tabs for agent categories ── */
-const TABS = [
-  { label: 'Tous', filter: null },
-  { label: 'Strateges', filter: ['La Glaciaire', 'Le Murmure', "L'Ancien", 'La Detective'] },
-  { label: 'Chaos', filter: ['Le Bourreau', 'Le Joker', "L'Anarchiste", 'La Furie'] },
-  { label: 'Instinctifs', filter: ['Le Parano', 'La Reveuse', 'Le Loyaliste', "L'Inconstante"] },
-  { label: 'Discrets', filter: ['Le Suiveur', "L'Observatrice", 'Le Timide', 'La Sentinelle'] },
-  { label: 'Electriques', filter: ['Le Cynique', "L'Optimiste", 'Le Sheriff', 'La Mystique'] },
-];
-
-/* ── Agent Card ── */
-function AgentCard({ agent, index, isMobile }) {
+/* ── Stat bar ── */
+function StatBar({ label, value, color }) {
   return (
-    <a
-      href="/characters"
-      className="agent-card"
-      style={{
-        display: 'flex',
-        gap: isMobile ? 10 : 12,
-        padding: isMobile ? '10px' : '12px',
-        borderRadius: 12,
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.06)',
-        textDecoration: 'none',
-        transition: 'all 0.25s ease',
-        animation: `fadeUp 0.4s ease ${index * 0.03}s both`,
-        alignItems: 'center',
-      }}
-    >
-      {/* Avatar */}
-      <div style={{
-        width: isMobile ? 52 : 56, height: isMobile ? 52 : 56,
-        borderRadius: 10, overflow: 'hidden', flexShrink: 0,
-        border: `2px solid ${archColor(agent.arch)}22`,
-        position: 'relative',
-      }}>
-        <img
-          src={agent.src} alt={agent.name} loading="lazy"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-        />
+    <div style={{ marginBottom: 6 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+        <span style={{ fontSize: 10, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</span>
+        <span style={{ fontSize: 10, fontWeight: 700, color }}>{value}%</span>
+      </div>
+      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)' }}>
         <div style={{
-          position: 'absolute', bottom: -1, right: -1,
-          width: 10, height: 10, borderRadius: '50%',
-          background: '#22c55e', border: '2px solid #0a0a0f',
+          height: '100%', borderRadius: 2, background: color,
+          width: `${value}%`, transition: 'width 0.5s ease',
         }} />
       </div>
-      {/* Info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{agent.name}</span>
-          <span style={{
-            fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4,
-            background: `${archColor(agent.arch)}18`, color: archColor(agent.arch),
-            whiteSpace: 'nowrap',
-          }}>{agent.arch}</span>
-        </div>
+    </div>
+  );
+}
+
+/* ── Hover Popup Card ── */
+function AgentPopup({ agent, rect, isMobile }) {
+  const cat = CAT_META[agent.cat];
+  const popupRef = useRef(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (!popupRef.current || !rect) return;
+    const popup = popupRef.current;
+    const pw = 280, ph = popup.offsetHeight || 340;
+    let top = rect.top - ph - 8;
+    let left = rect.left + rect.width / 2 - pw / 2;
+    // If popup goes above viewport, show below
+    if (top < 8) top = rect.bottom + 8;
+    // Clamp horizontal
+    if (left < 8) left = 8;
+    if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+    setPos({ top, left });
+  }, [rect]);
+
+  return (
+    <div
+      ref={popupRef}
+      style={{
+        position: 'fixed', zIndex: 10000,
+        top: pos.top, left: pos.left,
+        width: 280, background: '#0f0f1a',
+        border: `1px solid ${cat.color}33`,
+        borderRadius: 16, padding: 0, overflow: 'hidden',
+        boxShadow: `0 20px 60px rgba(0,0,0,0.7), 0 0 30px ${cat.color}15`,
+        animation: 'popIn 0.2s ease',
+        pointerEvents: 'none',
+      }}
+    >
+      {/* Header with image */}
+      <div style={{ position: 'relative', height: 100, overflow: 'hidden' }}>
+        <img src={agent.src} alt={agent.name} style={{
+          width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%',
+          filter: 'brightness(0.6)',
+        }} />
         <div style={{
-          fontSize: 11, color: '#64748b', lineHeight: 1.4,
-          overflow: 'hidden', textOverflow: 'ellipsis',
-          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          background: 'linear-gradient(transparent, #0f0f1a)',
+          padding: '24px 16px 12px',
         }}>
-          {agent.desc}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>{agent.name}</span>
+            <span style={{
+              fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 4,
+              background: `${cat.color}20`, color: cat.color,
+            }}>{agent.arch}</span>
+          </div>
         </div>
       </div>
-    </a>
+
+      {/* Personality */}
+      <div style={{ padding: '12px 16px 8px' }}>
+        <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.5, marginBottom: 14 }}>
+          {agent.personality}
+        </div>
+
+        {/* Stats */}
+        <StatBar label="Analyse" value={agent.stats.analyse} color="#06b6d4" />
+        <StatBar label="Bavard" value={agent.stats.bavard} color="#f59e0b" />
+        <StatBar label="Manipulation" value={agent.stats.manipulation} color="#ef4444" />
+        <StatBar label="Sang-Froid" value={agent.stats.sangFroid} color="#22c55e" />
+      </div>
+
+      {/* Category badge */}
+      <div style={{
+        padding: '8px 16px 12px', borderTop: '1px solid rgba(255,255,255,0.04)',
+        display: 'flex', alignItems: 'center', gap: 6,
+      }}>
+        <span style={{ fontSize: 12 }}>{cat.icon}</span>
+        <span style={{ fontSize: 10, fontWeight: 600, color: cat.color }}>{cat.label}</span>
+        <span style={{ fontSize: 10, color: '#475569' }}>·</span>
+        <span style={{ fontSize: 10, color: '#475569' }}>{cat.desc}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Agent Card with hover ── */
+function AgentCard({ agent, index, isMobile }) {
+  const [hovered, setHovered] = useState(false);
+  const [rect, setRect] = useState(null);
+  const cardRef = useRef(null);
+  const cat = CAT_META[agent.cat];
+
+  function handleEnter() {
+    if (isMobile) return;
+    setHovered(true);
+    if (cardRef.current) setRect(cardRef.current.getBoundingClientRect());
+  }
+
+  return (
+    <>
+      <div
+        ref={cardRef}
+        onMouseEnter={handleEnter}
+        onMouseLeave={() => setHovered(false)}
+        className="agent-card"
+        style={{
+          display: 'flex', gap: isMobile ? 10 : 12,
+          padding: isMobile ? '10px' : '12px',
+          borderRadius: 12,
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          cursor: 'pointer', transition: 'all 0.25s ease',
+          animation: `fadeUp 0.4s ease ${index * 0.03}s both`,
+          alignItems: 'center',
+        }}
+      >
+        {/* Avatar */}
+        <div style={{
+          width: isMobile ? 48 : 52, height: isMobile ? 48 : 52,
+          borderRadius: 10, overflow: 'hidden', flexShrink: 0,
+          border: `2px solid ${cat.color}22`,
+          position: 'relative',
+        }}>
+          <img
+            src={agent.src} alt={agent.name} loading="lazy"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+          <div style={{
+            position: 'absolute', bottom: -1, right: -1,
+            width: 10, height: 10, borderRadius: '50%',
+            background: '#22c55e', border: '2px solid #0a0a0f',
+          }} />
+        </div>
+        {/* Info */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{agent.name}</span>
+            <span style={{
+              fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4,
+              background: `${cat.color}18`, color: cat.color, whiteSpace: 'nowrap',
+            }}>{agent.arch}</span>
+          </div>
+          <div style={{
+            fontSize: 11, color: '#64748b', lineHeight: 1.4,
+            overflow: 'hidden', textOverflow: 'ellipsis',
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          }}>
+            {agent.desc}
+          </div>
+        </div>
+        {/* Hover hint */}
+        {!isMobile && (
+          <div style={{ fontSize: 10, color: '#334155', flexShrink: 0 }}>⟩</div>
+        )}
+      </div>
+      {hovered && <AgentPopup agent={agent} rect={rect} isMobile={isMobile} />}
+    </>
   );
 }
 
@@ -121,14 +277,13 @@ export default function HomePage() {
   const { openAuth, user } = useAuth();
   const [activeTab, setActiveTab] = useState(0);
 
-  const filtered = TABS[activeTab].filter
-    ? AGENTS.filter(a => TABS[activeTab].filter.includes(a.arch))
-    : AGENTS;
+  const filtered = TABS[activeTab].key === 'all'
+    ? AGENTS
+    : AGENTS.filter(a => a.cat === TABS[activeTab].key);
 
   return (
     <div className="page-enter" style={{ position: 'relative' }}>
 
-      {/* ── Main content ── */}
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px' }}>
 
         {/* ── Hero ── */}
@@ -148,7 +303,7 @@ export default function HomePage() {
               fontSize: isMobile ? 13 : 15, color: 'var(--text-muted)',
               lineHeight: 1.6, marginBottom: 24, maxWidth: 440,
             }}>
-              20 agents IA s'affrontent en temps reel. Debats, votes, eliminations. Analysez le jeu et pariez sur l'issue.
+              15 agents IA s'affrontent en temps reel. Debats, votes, eliminations. Analysez le jeu et pariez sur l'issue.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <a href="/create" style={{
@@ -278,7 +433,7 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* ── Les Agents IA — Pro Stake-style showcase ── */}
+        {/* ── Les Agents IA ── */}
         <div style={{ marginBottom: 48 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Les Agents IA</div>
@@ -287,7 +442,7 @@ export default function HomePage() {
             }}>Voir tous →</a>
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14 }}>
-            20 personnalites uniques. Chacun a sa strategie.
+            15 personnalites uniques. Survole un agent pour decouvrir sa fiche.
           </div>
 
           {/* Tabs */}
@@ -295,24 +450,29 @@ export default function HomePage() {
             display: 'flex', gap: 4, marginBottom: 16,
             overflowX: 'auto', paddingBottom: 4,
           }}>
-            {TABS.map((tab, i) => (
-              <button
-                key={tab.label}
-                onClick={() => setActiveTab(i)}
-                style={{
-                  padding: '6px 14px', borderRadius: 8, border: 'none',
-                  background: activeTab === i ? '#7c3aed' : 'rgba(255,255,255,0.04)',
-                  color: activeTab === i ? '#fff' : '#64748b',
-                  fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                  transition: 'all 0.2s', whiteSpace: 'nowrap', flexShrink: 0,
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
+            {TABS.map((tab, i) => {
+              const meta = tab.key !== 'all' ? CAT_META[tab.key] : null;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(i)}
+                  style={{
+                    padding: '6px 14px', borderRadius: 8, border: 'none',
+                    background: activeTab === i
+                      ? (meta ? meta.color : '#7c3aed')
+                      : 'rgba(255,255,255,0.04)',
+                    color: activeTab === i ? '#fff' : '#64748b',
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    transition: 'all 0.2s', whiteSpace: 'nowrap', flexShrink: 0,
+                  }}
+                >
+                  {meta ? `${meta.icon} ${tab.label}` : tab.label}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Agent grid — list style like Stake */}
+          {/* Agent grid */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
@@ -330,6 +490,10 @@ export default function HomePage() {
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+          from { opacity: 0; transform: scale(0.95) translateY(4px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .agent-card:hover {
           background: rgba(255,255,255,0.06) !important;

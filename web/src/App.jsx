@@ -180,8 +180,7 @@ function Footer({ isMobile }) {
   );
 }
 
-function getPage() {
-  const path = window.location.pathname;
+function getPageFromPath(path) {
   if (path === '/live') return 'live';
   if (path === '/copy') return 'copy';
   if (path === '/leaderboard') return 'leaderboard';
@@ -238,10 +237,59 @@ function AuthGuard({ children }) {
   return children;
 }
 
+/* ── Top loading bar ── */
+function LoadingBar({ visible }) {
+  if (!visible) return null;
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999, height: 3,
+      background: 'rgba(124,58,237,0.2)',
+    }}>
+      <div style={{
+        height: '100%', background: 'linear-gradient(90deg, #7c3aed, #06b6d4)',
+        animation: 'loadBar 1.2s ease infinite',
+      }} />
+      <style>{`@keyframes loadBar { 0% { width: 0; margin-left: 0; } 50% { width: 70%; margin-left: 15%; } 100% { width: 0; margin-left: 100%; } }`}</style>
+    </div>
+  );
+}
+
 function AppInner({ walletDisabled = false }) {
   const { user, firebaseUser, loading, authModalOpen, closeAuth } = useAuth();
-  const page = getPage();
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [navigating, setNavigating] = useState(false);
   const isMobile = useIsMobile();
+
+  // Client-side navigation — intercept internal <a> clicks
+  useEffect(() => {
+    function handleClick(e) {
+      const anchor = e.target.closest('a[href]');
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('mailto:') || anchor.target === '_blank') return;
+      if (href === currentPath) { e.preventDefault(); return; }
+      e.preventDefault();
+      setNavigating(true);
+      window.history.pushState(null, '', href);
+      setCurrentPath(href);
+      window.scrollTo(0, 0);
+      // Brief loading flash for perceived speed
+      setTimeout(() => setNavigating(false), 80);
+    }
+    function handlePop() {
+      setNavigating(true);
+      setCurrentPath(window.location.pathname);
+      setTimeout(() => setNavigating(false), 80);
+    }
+    document.addEventListener('click', handleClick);
+    window.addEventListener('popstate', handlePop);
+    return () => {
+      document.removeEventListener('click', handleClick);
+      window.removeEventListener('popstate', handlePop);
+    };
+  }, [currentPath]);
+
+  const page = getPageFromPath(currentPath);
 
   // Debug: log Dynamic env var on mount
   useEffect(() => {
@@ -251,6 +299,8 @@ function AppInner({ walletDisabled = false }) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      <LoadingBar visible={navigating} />
+
       {/* Wallet degraded mode bandeau */}
       {walletDisabled && (
         <div style={{
@@ -280,6 +330,7 @@ function AppInner({ walletDisabled = false }) {
         {/* Main content */}
         <main
           className="page-enter"
+          key={page}
           style={{
             flex: 1,
             minWidth: 0,
@@ -293,10 +344,10 @@ function AppInner({ walletDisabled = false }) {
             {page === 'leaderboard' && <Leaderboard />}
             {page === 'account'     && <AuthGuard><Account /></AuthGuard>}
             {page === 'market'      && (
-              <MarketDetail marketId={window.location.pathname.split('/market/')[1]} />
+              <MarketDetail marketId={currentPath.split('/market/')[1]} />
             )}
             {page === 'profile'     && (
-              <Profile profileId={window.location.pathname.split('/profile/')[1]} />
+              <Profile profileId={currentPath.split('/profile/')[1]} />
             )}
             {page === 'privacy'             && <PrivacyPage />}
             {page === 'terms'               && <TermsPage />}
