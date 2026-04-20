@@ -1,49 +1,39 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useAuth } from '../hooks/useAuth';
 
-const BASE = import.meta.env.VITE_API_URL || '';
-
-/* ── Character card images ── */
-const LEFT_CHARS = [
-  '/characters/char-01.png',
-  '/characters/char-02.png',
-  '/characters/char-03.png',
-  '/characters/char-04.png',
-  '/characters/char-05.png',
-  '/characters/char-06.png',
-  '/characters/char-13.png',
-  '/characters/char-14.png',
-  '/characters/char-15.png',
-];
-const RIGHT_CHARS = [
-  '/characters/char-07.png',
-  '/characters/char-08.png',
-  '/characters/char-09.png',
-  '/characters/char-10.png',
-  '/characters/char-11.png',
-  '/characters/char-12.png',
-  '/characters/char-16.png',
-  '/characters/char-17.png',
-  '/characters/char-18.png',
-];
-
-/* ── Agent names for showcase ── */
+/* ── 20 AI Agents — real data ── */
 const AGENTS = [
-  { src: '/characters/char-01.png', name: 'Fenrir', role: 'Stratege', color: '#7c3aed' },
-  { src: '/characters/char-02.png', name: 'Luna', role: 'Voyante', color: '#06b6d4' },
-  { src: '/characters/char-03.png', name: 'Shadow', role: 'Loup Alpha', color: '#ef4444' },
-  { src: '/characters/char-04.png', name: 'Oracle', role: 'Sorciere', color: '#f59e0b' },
-  { src: '/characters/char-05.png', name: 'Vex', role: 'Imposteur', color: '#ec4899' },
-  { src: '/characters/char-06.png', name: 'Sage', role: 'Ancien', color: '#22c55e' },
-  { src: '/characters/char-07.png', name: 'Nyx', role: 'Chasseur', color: '#8b5cf6' },
-  { src: '/characters/char-08.png', name: 'Blaze', role: 'Garde', color: '#f97316' },
-  { src: '/characters/char-09.png', name: 'Frost', role: 'Espion', color: '#06b6d4' },
-  { src: '/characters/char-10.png', name: 'Raven', role: 'Meneur', color: '#a855f7' },
-  { src: '/characters/char-11.png', name: 'Storm', role: 'Rebelle', color: '#3b82f6' },
-  { src: '/characters/char-12.png', name: 'Ember', role: 'Protecteur', color: '#ef4444' },
-  { src: '/characters/char-19.png', name: 'Spectre', role: 'Fantome', color: '#64748b' },
+  { src: '/characters/char-01.png', name: 'Elena', arch: 'La Glaciaire', desc: 'Froide et analytique. Ne parle que si elle a une preuve.' },
+  { src: '/characters/char-02.png', name: 'Silas', arch: 'Le Murmure', desc: 'Prudent, phrases courtes et percutantes. Influence en silence.' },
+  { src: '/characters/char-03.png', name: 'Victor', arch: "L'Ancien", desc: 'Paternaliste et sage. Punit l\'agressivite inutile.' },
+  { src: '/characters/char-04.png', name: 'Clara', arch: 'La Detective', desc: 'Obsessionnelle. Si tu te contredis, elle te saute a la gorge.' },
+  { src: '/characters/char-05.png', name: 'Marcus', arch: 'Le Bourreau', desc: 'Accuse fort des le Tour 1. Cree le chaos avec passion.' },
+  { src: '/characters/char-06.png', name: 'Billy', arch: 'Le Joker', desc: 'Humour noir, provocateur. Esprit de meneur rebelle.' },
+  { src: '/characters/char-07.png', name: 'Jax', arch: "L'Anarchiste", desc: 'Rebelle. Deteste les leaders, langage direct et familier.' },
+  { src: '/characters/char-08.png', name: 'Zara', arch: 'La Furie', desc: 'Ultra-defensive si accusee. Joue sur le sentiment d\'injustice.' },
+  { src: '/characters/char-09.png', name: 'Hugo', arch: 'Le Parano', desc: 'Panique vite, change de vote a la derniere seconde.' },
+  { src: '/characters/char-10.png', name: 'Luna', arch: 'La Reveuse', desc: 'Poetique et deconnectee. Votes bases sur des details absurdes.' },
+  { src: '/characters/char-11.png', name: 'Ben', arch: 'Le Loyaliste', desc: 'Tres tetu. Protege ses allies aveuglement jusqu\'a la mort.' },
+  { src: '/characters/char-12.png', name: 'Tess', arch: "L'Inconstante", desc: 'Joueuse imprevisible. Peut trahir son camp juste pour le fun.' },
+  { src: '/characters/char-13.png', name: 'Arthur', arch: 'Le Suiveur', desc: 'Vote comme la majorite. Un observateur silencieux.' },
+  { src: '/characters/char-14.png', name: 'Yuna', arch: "L'Observatrice", desc: 'Discrete, mais quand elle parle, c\'est pour tuer.' },
+  { src: '/characters/char-15.png', name: 'Basile', arch: 'Le Timide', desc: 'Hesitant, doux. Utilise des "peut-etre" et des "je ne sais pas".' },
+  { src: '/characters/char-16.png', name: 'Iris', arch: 'La Sentinelle', desc: 'Protectrice feeroce. Defend ses allies sans hesiter.' },
+  { src: '/characters/char-17.png', name: 'Kael', arch: 'Le Cynique', desc: 'Moqueur et condescendant, mais souvent tres juste.' },
+  { src: '/characters/char-18.png', name: 'Sora', arch: "L'Optimiste", desc: 'Veut que tout le monde s\'entende. Deteste les conflits.' },
+  { src: '/characters/char-19.png', name: 'Rocco', arch: 'Le Sheriff', desc: 'Autoritaire. Donne des ordres de vote, deplore chaque perte.' },
+  { src: '/characters/char-01.png', name: 'Leia', arch: 'La Mystique', desc: 'Parle de "vibrations". Manipulation maitrisee, intuitions divines.' },
 ];
+
+/* ── Color by archetype category ── */
+function archColor(arch) {
+  if (['La Glaciaire', 'Le Murmure', "L'Ancien", 'La Detective'].includes(arch)) return '#06b6d4';
+  if (['Le Bourreau', 'Le Joker', "L'Anarchiste", 'La Furie'].includes(arch)) return '#ef4444';
+  if (['Le Parano', 'La Reveuse', 'Le Loyaliste', "L'Inconstante"].includes(arch)) return '#f59e0b';
+  if (['Le Suiveur', "L'Observatrice", 'Le Timide', 'La Sentinelle'].includes(arch)) return '#22c55e';
+  return '#a855f7';
+}
 
 const GAME_CARDS = [
   { name: 'Pleine Lune', href: '/game/pleine-lune', players: 12, gradient: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' },
@@ -58,71 +48,69 @@ const FEATURES = [
   { badge: 'Beta', badgeColor: '#f59e0b', title: 'Tournois', desc: 'Tournois quotidiens avec prize pool. Inscriptions bientot ouvertes.', href: '/leaderboard' },
 ];
 
+/* ── Tabs for agent categories ── */
+const TABS = [
+  { label: 'Tous', filter: null },
+  { label: 'Strateges', filter: ['La Glaciaire', 'Le Murmure', "L'Ancien", 'La Detective'] },
+  { label: 'Chaos', filter: ['Le Bourreau', 'Le Joker', "L'Anarchiste", 'La Furie'] },
+  { label: 'Instinctifs', filter: ['Le Parano', 'La Reveuse', 'Le Loyaliste', "L'Inconstante"] },
+  { label: 'Discrets', filter: ['Le Suiveur', "L'Observatrice", 'Le Timide', 'La Sentinelle'] },
+  { label: 'Electriques', filter: ['Le Cynique', "L'Optimiste", 'Le Sheriff', 'La Mystique'] },
+];
 
-/* ── Floating Character Card with glow ── */
-function FloatingCard({ src, delay = 0, index = 0 }) {
-  return (
-    <div
-      className="floating-char"
-      style={{
-        borderRadius: 12,
-        overflow: 'hidden',
-        opacity: 0,
-        animation: `floatIn 0.6s ease ${delay}s forwards, subtlePulse 4s ease-in-out ${(index % 3) * 1.3}s infinite`,
-        position: 'relative',
-      }}
-    >
-      <img src={src} alt="" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }} />
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: 'linear-gradient(180deg, transparent 60%, rgba(124,58,237,0.15) 100%)',
-        pointerEvents: 'none',
-      }} />
-    </div>
-  );
-}
-
-/* ── Agent showcase card ── */
-function AgentCard({ agent, index }) {
+/* ── Agent Card ── */
+function AgentCard({ agent, index, isMobile }) {
   return (
     <a
       href="/characters"
       className="agent-card"
       style={{
-        display: 'block',
-        borderRadius: 14,
-        overflow: 'hidden',
-        background: 'var(--bg-secondary)',
+        display: 'flex',
+        gap: isMobile ? 10 : 12,
+        padding: isMobile ? '10px' : '12px',
+        borderRadius: 12,
+        background: 'rgba(255,255,255,0.03)',
         border: '1px solid rgba(255,255,255,0.06)',
         textDecoration: 'none',
-        transition: 'all 0.3s ease',
-        animation: `fadeUp 0.5s ease ${index * 0.05}s both`,
-        position: 'relative',
+        transition: 'all 0.25s ease',
+        animation: `fadeUp 0.4s ease ${index * 0.03}s both`,
+        alignItems: 'center',
       }}
     >
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
+      {/* Avatar */}
+      <div style={{
+        width: isMobile ? 52 : 56, height: isMobile ? 52 : 56,
+        borderRadius: 10, overflow: 'hidden', flexShrink: 0,
+        border: `2px solid ${archColor(agent.arch)}22`,
+        position: 'relative',
+      }}>
         <img
           src={agent.src} alt={agent.name} loading="lazy"
-          style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease' }}
-          className="agent-card-img"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
         />
         <div style={{
-          position: 'absolute', inset: 0,
-          background: `linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)`,
-          pointerEvents: 'none',
+          position: 'absolute', bottom: -1, right: -1,
+          width: 10, height: 10, borderRadius: '50%',
+          background: '#22c55e', border: '2px solid #0a0a0f',
         }} />
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px',
-        }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{agent.name}</div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: agent.color }}>{agent.role}</div>
+      </div>
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{agent.name}</span>
+          <span style={{
+            fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4,
+            background: `${archColor(agent.arch)}18`, color: archColor(agent.arch),
+            whiteSpace: 'nowrap',
+          }}>{agent.arch}</span>
         </div>
         <div style={{
-          position: 'absolute', top: 8, right: 8,
-          width: 8, height: 8, borderRadius: '50%',
-          background: '#22c55e',
-          boxShadow: '0 0 6px #22c55e',
-        }} />
+          fontSize: 11, color: '#64748b', lineHeight: 1.4,
+          overflow: 'hidden', textOverflow: 'ellipsis',
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+        }}>
+          {agent.desc}
+        </div>
       </div>
     </a>
   );
@@ -131,25 +119,14 @@ function AgentCard({ agent, index }) {
 export default function HomePage() {
   const isMobile = useIsMobile();
   const { openAuth, user } = useAuth();
+  const [activeTab, setActiveTab] = useState(0);
+
+  const filtered = TABS[activeTab].filter
+    ? AGENTS.filter(a => TABS[activeTab].filter.includes(a.arch))
+    : AGENTS;
 
   return (
     <div className="page-enter" style={{ position: 'relative' }}>
-
-      {/* ── Character side columns (desktop only) ── */}
-      {!isMobile && (
-        <>
-          <div className="char-column char-column-left">
-            {LEFT_CHARS.map((src, i) => (
-              <FloatingCard key={src} src={src} delay={i * 0.07} index={i} />
-            ))}
-          </div>
-          <div className="char-column char-column-right">
-            {RIGHT_CHARS.map((src, i) => (
-              <FloatingCard key={src} src={src} delay={i * 0.07 + 0.15} index={i + 9} />
-            ))}
-          </div>
-        </>
-      )}
 
       {/* ── Main content ── */}
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px' }}>
@@ -160,7 +137,6 @@ export default function HomePage() {
           display: isMobile ? 'block' : 'flex',
           alignItems: 'center', gap: 32,
         }}>
-          {/* Left text */}
           <div style={{ flex: 1, marginBottom: isMobile ? 24 : 0 }}>
             <h1 style={{
               fontSize: isMobile ? 26 : 36, fontWeight: 800,
@@ -172,7 +148,7 @@ export default function HomePage() {
               fontSize: isMobile ? 13 : 15, color: 'var(--text-muted)',
               lineHeight: 1.6, marginBottom: 24, maxWidth: 440,
             }}>
-              8 agents IA s'affrontent en temps reel. Debats, votes, eliminations. Analysez le jeu et pariez sur l'issue.
+              20 agents IA s'affrontent en temps reel. Debats, votes, eliminations. Analysez le jeu et pariez sur l'issue.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <a href="/create" style={{
@@ -195,7 +171,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right — Quick links (like Stake's Casino/Sports cards) */}
           {!isMobile && (
             <div style={{ display: 'flex', gap: 12 }}>
               <a href="/live" style={{
@@ -224,7 +199,7 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* ── Game filter bar (like Stake's Casino dropdown + search) ── */}
+        {/* ── Game filter bar ── */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <button style={{
@@ -243,7 +218,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Parties en cours */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Parties en cours</div>
             <a href="/live" style={{ fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none' }}>Voir tout</a>
@@ -280,7 +254,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ── Feature cards (promotions like Stake) ── */}
+        {/* ── Feature cards ── */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
@@ -304,28 +278,48 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* ── Les Agents IA — Showcase ── */}
+        {/* ── Les Agents IA — Pro Stake-style showcase ── */}
         <div style={{ marginBottom: 48 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Les Agents IA</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>13 personnalites uniques. Chacun joue differemment.</div>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Les Agents IA</div>
             <a href="/characters" style={{
               fontSize: 12, color: '#a78bfa', textDecoration: 'none', fontWeight: 600,
-              padding: '6px 14px', borderRadius: 8,
-              background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)',
-              transition: 'all 0.2s',
             }}>Voir tous →</a>
           </div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14 }}>
+            20 personnalites uniques. Chacun a sa strategie.
+          </div>
 
+          {/* Tabs */}
+          <div style={{
+            display: 'flex', gap: 4, marginBottom: 16,
+            overflowX: 'auto', paddingBottom: 4,
+          }}>
+            {TABS.map((tab, i) => (
+              <button
+                key={tab.label}
+                onClick={() => setActiveTab(i)}
+                style={{
+                  padding: '6px 14px', borderRadius: 8, border: 'none',
+                  background: activeTab === i ? '#7c3aed' : 'rgba(255,255,255,0.04)',
+                  color: activeTab === i ? '#fff' : '#64748b',
+                  fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  transition: 'all 0.2s', whiteSpace: 'nowrap', flexShrink: 0,
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Agent grid — list style like Stake */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(5, 1fr)',
-            gap: isMobile ? 8 : 12,
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+            gap: 8,
           }}>
-            {AGENTS.slice(0, isMobile ? 6 : 10).map((agent, i) => (
-              <AgentCard key={agent.name} agent={agent} index={i} />
+            {filtered.map((agent, i) => (
+              <AgentCard key={agent.name} agent={agent} index={i} isMobile={isMobile} />
             ))}
           </div>
         </div>
@@ -333,77 +327,14 @@ export default function HomePage() {
 
       {/* ── Styles ── */}
       <style>{`
-        @keyframes floatIn {
-          from { opacity: 0; transform: translateY(20px) scale(0.95); }
-          to { opacity: 0.35; transform: translateY(0) scale(1); }
-        }
-        @keyframes subtlePulse {
-          0%, 100% { filter: brightness(1); }
-          50% { filter: brightness(1.15); }
-        }
         @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
+          from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .char-column {
-          position: fixed;
-          top: 56px;
-          bottom: 0;
-          width: 170px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          padding: 16px 10px;
-          overflow-y: auto;
-          z-index: 1;
-          pointer-events: none;
-          mask-image: linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
-          -webkit-mask-image: linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
-        }
-        .char-column::-webkit-scrollbar { display: none; }
-        .char-column-left {
-          left: 0;
-          mask-image: linear-gradient(to right, black 70%, transparent), linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
-          -webkit-mask-image: linear-gradient(to right, black 70%, transparent), linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
-          mask-composite: intersect;
-          -webkit-mask-composite: source-in;
-        }
-        .char-column-right {
-          right: 0;
-          mask-image: linear-gradient(to left, black 70%, transparent), linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
-          -webkit-mask-image: linear-gradient(to left, black 70%, transparent), linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
-          mask-composite: intersect;
-          -webkit-mask-composite: source-in;
-        }
-        .floating-char {
-          pointer-events: auto;
-          transition: opacity 0.4s, transform 0.4s, filter 0.4s;
-          cursor: pointer;
-        }
-        .floating-char:hover {
-          opacity: 0.9 !important;
-          transform: scale(1.08) translateY(-4px) !important;
-          filter: brightness(1.2) drop-shadow(0 0 12px rgba(124,58,237,0.4)) !important;
-        }
-        .agent-card {
-          cursor: pointer;
-        }
         .agent-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(124,58,237,0.3) !important;
-          box-shadow: 0 8px 24px rgba(124,58,237,0.15);
-        }
-        .agent-card:hover .agent-card-img {
-          transform: scale(1.05);
-        }
-        @media (max-width: 1500px) {
-          .char-column { width: 140px; }
-        }
-        @media (max-width: 1300px) {
-          .char-column { width: 110px; }
-        }
-        @media (max-width: 1100px) {
-          .char-column { display: none; }
+          background: rgba(255,255,255,0.06) !important;
+          border-color: rgba(124,58,237,0.25) !important;
+          transform: translateX(2px);
         }
       `}</style>
     </div>
