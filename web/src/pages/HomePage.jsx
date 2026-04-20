@@ -115,25 +115,26 @@ function StatBar({ label, value, color }) {
   );
 }
 
-/* ── Hover Popup Card ── */
-function AgentPopup({ agent, rect, isMobile }) {
+/* ── Hover Popup Card — follows mouse ── */
+function AgentPopup({ agent, mousePos, isMobile }) {
   const cat = CAT_META[agent.cat];
   const popupRef = useRef(null);
   const [pos, setPos] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
-    if (!popupRef.current || !rect) return;
-    const popup = popupRef.current;
-    const pw = 280, ph = popup.offsetHeight || 340;
-    let top = rect.top - ph - 8;
-    let left = rect.left + rect.width / 2 - pw / 2;
-    // If popup goes above viewport, show below
-    if (top < 8) top = rect.bottom + 8;
+    if (!mousePos) return;
+    const pw = 280, ph = 360;
+    let top = mousePos.y - ph - 12;
+    let left = mousePos.x - pw / 2;
+    // If popup goes above viewport, show below cursor
+    if (top < 8) top = mousePos.y + 20;
     // Clamp horizontal
     if (left < 8) left = 8;
     if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+    // Clamp bottom
+    if (top + ph > window.innerHeight - 8) top = window.innerHeight - ph - 8;
     setPos({ top, left });
-  }, [rect]);
+  }, [mousePos]);
 
   return (
     <div
@@ -200,21 +201,25 @@ function AgentPopup({ agent, rect, isMobile }) {
 /* ── Agent Card with hover ── */
 function AgentCard({ agent, index, isMobile }) {
   const [hovered, setHovered] = useState(false);
-  const [rect, setRect] = useState(null);
-  const cardRef = useRef(null);
+  const [mousePos, setMousePos] = useState(null);
   const cat = CAT_META[agent.cat];
 
-  function handleEnter() {
+  function handleEnter(e) {
     if (isMobile) return;
     setHovered(true);
-    if (cardRef.current) setRect(cardRef.current.getBoundingClientRect());
+    setMousePos({ x: e.clientX, y: e.clientY });
+  }
+
+  function handleMove(e) {
+    if (!hovered) return;
+    setMousePos({ x: e.clientX, y: e.clientY });
   }
 
   return (
     <>
       <div
-        ref={cardRef}
         onMouseEnter={handleEnter}
+        onMouseMove={handleMove}
         onMouseLeave={() => setHovered(false)}
         className="agent-card"
         style={{
@@ -267,7 +272,7 @@ function AgentCard({ agent, index, isMobile }) {
           <div style={{ fontSize: 10, color: '#334155', flexShrink: 0 }}>⟩</div>
         )}
       </div>
-      {hovered && <AgentPopup agent={agent} rect={rect} isMobile={isMobile} />}
+      {hovered && <AgentPopup agent={agent} mousePos={mousePos} isMobile={isMobile} />}
     </>
   );
 }

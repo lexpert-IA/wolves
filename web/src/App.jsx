@@ -237,19 +237,40 @@ function AuthGuard({ children }) {
   return children;
 }
 
-/* ── Top loading bar ── */
+/* ── Stake-style top loading bar ── */
 function LoadingBar({ visible }) {
-  if (!visible) return null;
+  const [progress, setProgress] = useState(0);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setShow(true);
+      setProgress(0);
+      const t1 = setTimeout(() => setProgress(30), 10);
+      const t2 = setTimeout(() => setProgress(60), 200);
+      const t3 = setTimeout(() => setProgress(80), 400);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    } else if (show) {
+      setProgress(100);
+      const t = setTimeout(() => { setShow(false); setProgress(0); }, 300);
+      return () => clearTimeout(t);
+    }
+  }, [visible]);
+
+  if (!show) return null;
   return (
     <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999, height: 3,
-      background: 'rgba(124,58,237,0.2)',
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 99999, height: 2,
+      background: 'transparent',
     }}>
       <div style={{
-        height: '100%', background: 'linear-gradient(90deg, #7c3aed, #06b6d4)',
-        animation: 'loadBar 1.2s ease infinite',
+        height: '100%',
+        background: 'linear-gradient(90deg, #7c3aed, #a855f7, #06b6d4)',
+        width: `${progress}%`,
+        transition: progress === 100 ? 'width 0.2s ease, opacity 0.3s' : 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        opacity: progress === 100 ? 0 : 1,
+        boxShadow: '0 0 10px rgba(124,58,237,0.5)',
       }} />
-      <style>{`@keyframes loadBar { 0% { width: 0; margin-left: 0; } 50% { width: 70%; margin-left: 15%; } 100% { width: 0; margin-left: 100%; } }`}</style>
     </div>
   );
 }
@@ -270,16 +291,20 @@ function AppInner({ walletDisabled = false }) {
       if (href === currentPath) { e.preventDefault(); return; }
       e.preventDefault();
       setNavigating(true);
-      window.history.pushState(null, '', href);
-      setCurrentPath(href);
-      window.scrollTo(0, 0);
-      // Brief loading flash for perceived speed
-      setTimeout(() => setNavigating(false), 80);
+      // Stake-style: brief loading bar, then switch page
+      setTimeout(() => {
+        window.history.pushState(null, '', href);
+        setCurrentPath(href);
+        window.scrollTo(0, 0);
+        setTimeout(() => setNavigating(false), 150);
+      }, 100);
     }
     function handlePop() {
       setNavigating(true);
-      setCurrentPath(window.location.pathname);
-      setTimeout(() => setNavigating(false), 80);
+      setTimeout(() => {
+        setCurrentPath(window.location.pathname);
+        setTimeout(() => setNavigating(false), 150);
+      }, 100);
     }
     document.addEventListener('click', handleClick);
     window.addEventListener('popstate', handlePop);
@@ -335,6 +360,8 @@ function AppInner({ walletDisabled = false }) {
             flex: 1,
             minWidth: 0,
             paddingBottom: isMobile ? 76 : 48,
+            opacity: navigating ? 0.4 : 1,
+            transition: 'opacity 0.15s ease',
           }}
         >
           <PageErrorBoundary key={page}>
