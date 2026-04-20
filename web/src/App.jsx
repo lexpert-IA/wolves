@@ -37,6 +37,8 @@ import AffiliatePage from './pages/AffiliatePage';
 import FaqPage from './pages/FaqPage';
 import RulesPage from './pages/RulesPage';
 import CharactersPage from './pages/CharactersPage';
+import Lifeboat from './pages/games/Lifeboat';
+import Bunker from './pages/games/Bunker';
 import DepositPage from './pages/DepositPage';
 import HistoryPage from './pages/HistoryPage';
 import NotificationsPage from './pages/NotificationsPage';
@@ -195,6 +197,8 @@ function getPageFromPath(path) {
   if (path === '/game/village-maudit') return 'village-maudit';
   if (path === '/game/nuit-noire') return 'nuit-noire';
   if (path === '/game/meute-alpha') return 'meute-alpha';
+  if (path === '/game/lifeboat') return 'lifeboat';
+  if (path === '/game/bunker') return 'bunker';
   if (path === '/affiliate') return 'affiliate';
   if (path === '/faq') return 'faq';
   if (path === '/rules') return 'rules';
@@ -386,6 +390,8 @@ function AppInner({ walletDisabled = false }) {
             {page === 'village-maudit'     && <VillageMaudit />}
             {page === 'nuit-noire'         && <NuitNoire />}
             {page === 'meute-alpha'        && <MeuteAlpha />}
+            {page === 'lifeboat'           && <Lifeboat />}
+            {page === 'bunker'             && <Bunker />}
             {page === 'lobby'              && <LobbyPage />}
             {page === 'affiliate'          && <AuthGuard><AffiliatePage /></AuthGuard>}
             {page === 'faq'                && <FaqPage />}

@@ -1256,6 +1256,28 @@
       letter-spacing: 3px;
       text-transform: uppercase;
     }
+    .mode-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 16px 24px;
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      min-width: 140px;
+    }
+    .mode-btn:hover { border-color: var(--border-hover); background: rgba(255,255,255,0.04); }
+    .mode-btn.selected {
+      border-color: var(--accent-violet);
+      background: var(--accent-violet-dim);
+      color: var(--text-primary);
+      box-shadow: 0 0 20px var(--accent-violet-glow);
+    }
+
     .start-btn {
       padding: 18px 56px;
       font-family: var(--font-display);
@@ -1467,6 +1489,24 @@
       </div>
     </div>
 
+    <div id="mode-selector" style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;">
+      <button class="mode-btn selected" data-mode="werewolf" onclick="selectMode('werewolf')">
+        <span style="font-size:24px;">&#129409;</span>
+        <span style="font-weight:700;font-size:14px;">LOUP-GAROU</span>
+        <span style="font-size:11px;color:var(--text-muted);">Loups vs Village</span>
+      </button>
+      <button class="mode-btn" data-mode="lifeboat" onclick="selectMode('lifeboat')">
+        <span style="font-size:24px;">&#9973;</span>
+        <span style="font-weight:700;font-size:14px;">LIFEBOAT</span>
+        <span style="font-size:11px;color:var(--text-muted);">8 IA, 4 survivent</span>
+      </button>
+      <button class="mode-btn" data-mode="bunker" onclick="selectMode('bunker')">
+        <span style="font-size:24px;">&#9762;&#65039;</span>
+        <span style="font-weight:700;font-size:14px;">BUNKER</span>
+        <span style="font-size:11px;color:var(--text-muted);">8 IA, 3 survivent</span>
+      </button>
+    </div>
+
     <button class="start-btn" id="start-btn" onclick="startMatch()">LANCER UNE PARTIE</button>
     <div class="start-error" id="start-error"></div>
 
@@ -1476,8 +1516,8 @@
     </div>
 
     <div class="start-rules">
-      <div class="start-rules-title">REGLES RAPIDES</div>
-      <div class="start-rules-list">
+      <div class="start-rules-title" id="rules-title">REGLES RAPIDES</div>
+      <div class="start-rules-list" id="rules-list">
         <span>&#9788;&#65039; JOUR : les IA debattent et cherchent les loups</span>
         <span>&#128499;&#65039; VOTE : le village elimine un suspect</span>
         <span>&#127769; NUIT : les loups devorent un villageois</span>
@@ -1647,13 +1687,14 @@ var matchStartTime = null;
 var durationInterval = null;
 var currentSpeaker = null;
 var speechBubbleTimers = {};
+var gameMode = 'werewolf';
 
 var STARTING_TOKENS = 1000;
 var STORAGE_KEY = 'wolves_tokens_v2';
 var BETS_KEY = 'wolves_bets_v2';
 
-var PHASE_LABELS = { day: 'JOUR', vote: 'VOTE', night: 'NUIT' };
-var PHASE_ICONS = { day: '\u2600\uFE0F', vote: '\uD83D\uDDF3\uFE0F', night: '\uD83C\uDF19' };
+var PHASE_LABELS = { day: 'JOUR', vote: 'VOTE', night: 'NUIT', debate: 'DEBAT' };
+var PHASE_ICONS = { day: '\u2600\uFE0F', vote: '\uD83D\uDDF3\uFE0F', night: '\uD83C\uDF19', debate: '\uD83D\uDDE3\uFE0F' };
 
 var AVATAR_COLORS = [
   '#7C3AED', '#2563EB', '#0891B2', '#059669',
@@ -1686,13 +1727,45 @@ function updateBalanceUI() {
 }
 
 /* ═══════════════════════════════════════ */
+/* MODE SELECTION                          */
+/* ═══════════════════════════════════════ */
+var MODE_RULES = {
+  werewolf: [
+    '\u2600\uFE0F JOUR : les IA debattent et cherchent les loups',
+    '\uD83D\uDDF3\uFE0F VOTE : le village elimine un suspect',
+    '\uD83C\uDF19 NUIT : les loups devorent un villageois',
+    '\uD83C\uDFC6 FIN : les loups gagnent s\'ils egalent les villageois'
+  ],
+  lifeboat: [
+    '\u26F5 Le bateau coule. 4 places dans le canot.',
+    '\uD83D\uDDE3\uFE0F DEBAT : les IA argumentent pour survivre',
+    '\uD83D\uDDF3\uFE0F VOTE : le groupe elimine un joueur',
+    '\uD83C\uDFC6 FIN : 4 survivants restent'
+  ],
+  bunker: [
+    '\u2622\uFE0F Catastrophe nucleaire. 3 places dans le bunker.',
+    '\uD83D\uDDE3\uFE0F DEBAT : les IA argumentent pour survivre',
+    '\uD83D\uDDF3\uFE0F VOTE : le groupe elimine un joueur',
+    '\uD83C\uDFC6 FIN : 3 survivants restent'
+  ]
+};
+
+function selectMode(mode) {
+  gameMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(function(b) {
+    b.classList.toggle('selected', b.dataset.mode === mode);
+  });
+  var list = document.getElementById('rules-list');
+  list.innerHTML = MODE_RULES[mode].map(function(r) { return '<span>' + r + '</span>'; }).join('');
+}
+
+/* ═══════════════════════════════════════ */
 /* START MATCH                             */
 /* ═══════════════════════════════════════ */
 async function startMatch() {
   var btn = document.getElementById('start-btn');
   var err = document.getElementById('start-error');
 
-  // If called from winner overlay (no start screen visible), show loading toast
   var fromWinner = document.getElementById('start-screen').classList.contains('hidden');
 
   if (btn) {
@@ -1703,7 +1776,13 @@ async function startMatch() {
   if (fromWinner) showToast('Lancement d\'une nouvelle partie...');
 
   try {
-    var res = await fetch('/api/matches/start', { method: 'POST' });
+    var url, method = 'POST';
+    if (gameMode === 'werewolf') {
+      url = '/api/matches/start';
+    } else {
+      url = '/api/survival/start?mode=' + gameMode;
+    }
+    var res = await fetch(url, { method: method });
     if (!res.ok) throw new Error('Erreur serveur: ' + res.status);
     var data = await res.json();
     matchId = data.matchId;
@@ -1800,10 +1879,12 @@ function onMatchStart(data) {
   players = (data.players || []).map(function(p) {
     return { name: p.name, archetype: p.archetype || '', trait: p.trait || '', alive: true, role: null };
   });
+  if (data.gameType) gameMode = data.gameType;
   renderSidebarPlayers();
   renderTablePlayers();
   document.getElementById('match-id-display').textContent = '#' + (data.matchId || matchId).slice(-6);
-  addSystemMsg('La partie commence avec ' + players.length + ' joueurs.');
+  var modeLabel = data.gameLabel || (gameMode === 'werewolf' ? 'Loup-Garou' : gameMode === 'lifeboat' ? 'Lifeboat' : 'Bunker');
+  addSystemMsg(modeLabel + ' \u2014 ' + players.length + ' joueurs.');
 }
 
 function onPhaseChange(data, silent) {
@@ -1915,29 +1996,53 @@ function onNightKill(data) {
 }
 
 function onMatchEnd(data) {
-  var side = data.winnerSide;
   clearSpeaking();
 
-  addSystemMsg('PARTIE TERMINEE \u2014 Victoire des ' + (side === 'wolves' ? 'LOUPS \uD83D\uDC3A' : 'VILLAGEOIS \uD83C\uDFE0') + ' !');
+  var isSurvival = data.gameType === 'lifeboat' || data.gameType === 'bunker' || (data.survivors && data.survivors.length > 0);
 
-  // Reveal all roles
-  if (data.roles) {
-    data.roles.forEach(function(r) {
-      var p = players.find(function(x) { return x.name === r.name; });
-      if (p) {
-        p.role = r.role;
-        p.alive = r.alive;
-      }
-    });
-    renderSidebarPlayers();
-    renderTablePlayers();
+  if (isSurvival) {
+    var survivors = data.survivors || [];
+    addSystemMsg('PARTIE TERMINEE \u2014 Survivants : ' + survivors.join(', '));
+
+    if (data.roles) {
+      data.roles.forEach(function(r) {
+        var p = players.find(function(x) { return x.name === r.name; });
+        if (p) {
+          p.role = 'survivor';
+          p.alive = r.alive;
+        }
+      });
+      renderSidebarPlayers();
+      renderTablePlayers();
+    }
+
+    var title = document.getElementById('winner-title');
+    var modeLabel = data.gameType === 'bunker' ? '\u2622\uFE0F BUNKER' : '\u26F5 LIFEBOAT';
+    title.textContent = modeLabel + ' TERMINE';
+    title.className = 'villagers';
+    document.getElementById('winner-subtitle').textContent = 'Survivants : ' + survivors.join(', ');
+  } else {
+    var side = data.winnerSide;
+    addSystemMsg('PARTIE TERMINEE \u2014 Victoire des ' + (side === 'wolves' ? 'LOUPS \uD83D\uDC3A' : 'VILLAGEOIS \uD83C\uDFE0') + ' !');
+
+    if (data.roles) {
+      data.roles.forEach(function(r) {
+        var p = players.find(function(x) { return x.name === r.name; });
+        if (p) {
+          p.role = r.role;
+          p.alive = r.alive;
+        }
+      });
+      renderSidebarPlayers();
+      renderTablePlayers();
+    }
+
+    var title = document.getElementById('winner-title');
+    title.textContent = side === 'wolves' ? '\uD83D\uDC3A LOUPS VICTORIEUX' : '\uD83C\uDFE0 VILLAGE SAUVE';
+    title.className = side;
+    document.getElementById('winner-subtitle').textContent = 'La partie est terminee.';
   }
 
-  // Winner overlay
-  var title = document.getElementById('winner-title');
-  title.textContent = side === 'wolves' ? '\uD83D\uDC3A LOUPS VICTORIEUX' : '\uD83C\uDFE0 VILLAGE SAUVE';
-  title.className = side;
-  document.getElementById('winner-subtitle').textContent = 'La partie est terminee.';
   var payoutEl = document.getElementById('winner-payout');
   if (totalPayout > 0) {
     payoutEl.textContent = '+' + totalPayout.toLocaleString('fr-FR') + ' W gagnes !';
@@ -1953,7 +2058,6 @@ function closeWinner() {
 }
 
 function newMatch() {
-  // Reset state
   document.getElementById('winner-overlay').classList.remove('show');
   players = [];
   markets = [];
@@ -1975,8 +2079,10 @@ function newMatch() {
 
   if (socket) { socket.disconnect(); socket = null; }
 
-  // Re-launch
-  startMatch();
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('start-screen').classList.remove('hidden');
+  var btn = document.getElementById('start-btn');
+  if (btn) { btn.disabled = false; btn.textContent = 'LANCER UNE PARTIE'; }
 }
 
 /* ═══════════════════════════════════════ */
@@ -2127,7 +2233,6 @@ function renderTablePlayers() {
 /* RENDER MARKETS                          */
 /* ═══════════════════════════════════════ */
 function renderMarkets() {
-  // Main market (wolves_win)
   var mainEl = document.getElementById('main-market');
   var mainMarket = markets.find(function(m) { return m.type === 'wolves_win'; });
 
@@ -2141,7 +2246,7 @@ function renderMarkets() {
     if (mainMarket.resolved) {
       resolvedHtml = '<div style="text-align:center;margin-top:10px;font-weight:700;font-size:14px;color:' +
         (mainMarket.result ? 'var(--danger)' : 'var(--success)') + '">' +
-        (mainMarket.result ? '\uD83D\uDC3A OUI — Loups gagnent' : '\uD83C\uDFE0 NON — Village sauve') + '</div>';
+        (mainMarket.result ? '\uD83D\uDC3A OUI \u2014 Loups gagnent' : '\uD83C\uDFE0 NON \u2014 Village sauve') + '</div>';
     }
 
     mainEl.innerHTML =
@@ -2159,6 +2264,8 @@ function renderMarkets() {
         resolvedHtml +
         '<div class="market-main-pool">' + total + ' W en jeu</div>' +
       '</div>';
+  } else {
+    mainEl.innerHTML = '';
   }
 
   // Other markets
@@ -2167,6 +2274,7 @@ function renderMarkets() {
 
   var groups = [
     { type: 'is_wolf', title: 'IDENTITE' },
+    { type: 'survives', title: 'SURVIE' },
     { type: 'first_eliminated', title: 'PREMIER ELIMINE' },
   ];
 

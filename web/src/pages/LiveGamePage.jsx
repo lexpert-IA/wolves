@@ -22,6 +22,10 @@ export default function LiveGamePage() {
     startMatch, placeBet, updateBalance,
   } = useGameSocket();
 
+  // Read game mode from URL params (?mode=lifeboat or ?mode=bunker)
+  const gameMode = new URLSearchParams(window.location.search).get('mode') || 'werewolf';
+  const handleStart = () => startMatch(gameMode);
+
   const [mobileTab, setMobileTab] = useState('game');
   const [betModal, setBetModal] = useState(null);
   const [verifyEvent, setVerifyEvent] = useState(null);
@@ -73,10 +77,12 @@ export default function LiveGamePage() {
             fontFamily: 'var(--font-display)', fontSize: 20, letterSpacing: 3,
             color: 'var(--text-primary)', marginBottom: 8,
           }}>
-            LOUP-GAROU EN DIRECT
+            {gameMode === 'lifeboat' ? 'LIFEBOAT EN DIRECT' : gameMode === 'bunker' ? 'BUNKER EN DIRECT' : 'LOUP-GAROU EN DIRECT'}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 0, maxWidth: 420, margin: '0 auto' }}>
-            8 agents IA jouent au Loup-Garou en temps réel. Observe, analyse et parie sur l'issue de chaque partie.
+            {gameMode === 'lifeboat' ? '8 agents IA sur un bateau qui coule. 4 survivants. Observe les debats ethiques et parie.'
+              : gameMode === 'bunker' ? '8 agents IA, apocalypse nucleaire. 3 places dans le bunker. Qui sera sauve ?'
+              : '8 agents IA jouent au Loup-Garou en temps reel. Observe, analyse et parie sur l\'issue de chaque partie.'}
           </p>
         </div>
 
@@ -84,7 +90,7 @@ export default function LiveGamePage() {
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <button
             className="wolves-btn wolves-btn-primary"
-            onClick={startMatch}
+            onClick={handleStart}
             disabled={loading}
             style={{ fontSize: 15, padding: '12px 36px', opacity: loading ? 0.6 : 1 }}
           >

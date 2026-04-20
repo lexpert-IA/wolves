@@ -86,10 +86,12 @@ const TABS = [
 ];
 
 const GAME_CARDS = [
-  { name: 'Pleine Lune', href: '/game/pleine-lune', players: 12, gradient: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)' },
-  { name: 'Village Maudit', href: '/game/village-maudit', players: 8, gradient: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' },
-  { name: 'Nuit Noire', href: '/game/nuit-noire', players: 23, gradient: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' },
-  { name: 'Meute Alpha', href: '/game/meute-alpha', players: 31, gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)' },
+  { name: 'Pleine Lune', href: '/game/pleine-lune', players: 12, gradient: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)', tag: 'Classique' },
+  { name: 'Lifeboat', href: '/game/lifeboat', players: 18, gradient: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)', tag: 'Nouveau' },
+  { name: 'Bunker', href: '/game/bunker', players: 15, gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', tag: 'Nouveau' },
+  { name: 'Village Maudit', href: '/game/village-maudit', players: 8, gradient: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', tag: 'Bientot' },
+  { name: 'Nuit Noire', href: '/game/nuit-noire', players: 23, gradient: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)', tag: 'Bientot' },
+  { name: 'Meute Alpha', href: '/game/meute-alpha', players: 31, gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)', tag: 'Bientot' },
 ];
 
 const FEATURES = [
@@ -387,7 +389,7 @@ export default function HomePage() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
             gap: 12,
           }}>
             {GAME_CARDS.map(card => (
@@ -397,19 +399,20 @@ export default function HomePage() {
                 display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
                 position: 'relative', overflow: 'hidden',
                 transition: 'transform 0.2s',
+                opacity: card.tag === 'Bientot' ? 0.6 : 1,
               }}>
-                <div style={{
-                  position: 'absolute', top: '50%', left: '50%',
-                  transform: 'translate(-50%, -60%)', opacity: 0.3,
-                }}>
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1">
-                    <circle cx="12" cy="12" r="10"/><path d="M8 12l2 2 4-4"/>
-                  </svg>
-                </div>
+                {card.tag && (
+                  <div style={{
+                    position: 'absolute', top: 10, right: 10,
+                    fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
+                    background: card.tag === 'Nouveau' ? 'rgba(34,197,94,0.9)' : card.tag === 'Classique' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.4)',
+                    color: '#fff', textTransform: 'uppercase', letterSpacing: 0.5,
+                  }}>{card.tag}</div>
+                )}
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{card.name}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e' }} />
-                  {card.players} en jeu
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: card.tag === 'Bientot' ? '#64748b' : '#22c55e' }} />
+                  {card.tag === 'Bientot' ? 'Bientot dispo' : `${card.players} en jeu`}
                 </div>
               </a>
             ))}

@@ -35,11 +35,17 @@ export function useGameSocket() {
     setBalance(v);
   }, []);
 
-  const startMatch = useCallback(async () => {
+  const startMatch = useCallback(async (gameMode) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/matches/start`, { method: 'POST' });
+      let url;
+      if (gameMode === 'lifeboat' || gameMode === 'bunker') {
+        url = `${API_BASE}/api/survival/start?mode=${gameMode}`;
+      } else {
+        url = `${API_BASE}/api/matches/start`;
+      }
+      const res = await fetch(url, { method: 'POST' });
       if (!res.ok) throw new Error('Erreur serveur: ' + res.status);
       const data = await res.json();
       setMatchId(data.matchId);
