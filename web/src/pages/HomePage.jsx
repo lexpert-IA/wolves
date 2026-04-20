@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useAuth } from '../hooks/useAuth';
 
@@ -136,7 +137,7 @@ function AgentPopup({ agent, mousePos, isMobile }) {
     setPos({ top, left });
   }, [mousePos]);
 
-  return (
+  return createPortal(
     <div
       ref={popupRef}
       style={{
@@ -194,7 +195,8 @@ function AgentPopup({ agent, mousePos, isMobile }) {
         <span style={{ fontSize: 10, color: '#475569' }}>·</span>
         <span style={{ fontSize: 10, color: '#475569' }}>{cat.desc}</span>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

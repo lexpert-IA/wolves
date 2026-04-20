@@ -1180,7 +1180,7 @@ export default function Account() {
         </div>
       )}
 
-      {error && activeTab === 'stats' && (
+      {error && (
         <div style={{ padding: 12, borderRadius: 8, marginBottom: 16, background: 'rgba(239,68,68,0.1)', color: 'var(--red)', fontSize: 13 }}>
           Erreur: {error}
         </div>
