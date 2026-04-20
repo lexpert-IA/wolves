@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useAuth } from '../hooks/useAuth';
 
@@ -12,6 +12,9 @@ const LEFT_CHARS = [
   '/characters/char-04.png',
   '/characters/char-05.png',
   '/characters/char-06.png',
+  '/characters/char-13.png',
+  '/characters/char-14.png',
+  '/characters/char-15.png',
 ];
 const RIGHT_CHARS = [
   '/characters/char-07.png',
@@ -20,6 +23,26 @@ const RIGHT_CHARS = [
   '/characters/char-10.png',
   '/characters/char-11.png',
   '/characters/char-12.png',
+  '/characters/char-16.png',
+  '/characters/char-17.png',
+  '/characters/char-18.png',
+];
+
+/* ── Agent names for showcase ── */
+const AGENTS = [
+  { src: '/characters/char-01.png', name: 'Fenrir', role: 'Stratege', color: '#7c3aed' },
+  { src: '/characters/char-02.png', name: 'Luna', role: 'Voyante', color: '#06b6d4' },
+  { src: '/characters/char-03.png', name: 'Shadow', role: 'Loup Alpha', color: '#ef4444' },
+  { src: '/characters/char-04.png', name: 'Oracle', role: 'Sorciere', color: '#f59e0b' },
+  { src: '/characters/char-05.png', name: 'Vex', role: 'Imposteur', color: '#ec4899' },
+  { src: '/characters/char-06.png', name: 'Sage', role: 'Ancien', color: '#22c55e' },
+  { src: '/characters/char-07.png', name: 'Nyx', role: 'Chasseur', color: '#8b5cf6' },
+  { src: '/characters/char-08.png', name: 'Blaze', role: 'Garde', color: '#f97316' },
+  { src: '/characters/char-09.png', name: 'Frost', role: 'Espion', color: '#06b6d4' },
+  { src: '/characters/char-10.png', name: 'Raven', role: 'Meneur', color: '#a855f7' },
+  { src: '/characters/char-11.png', name: 'Storm', role: 'Rebelle', color: '#3b82f6' },
+  { src: '/characters/char-12.png', name: 'Ember', role: 'Protecteur', color: '#ef4444' },
+  { src: '/characters/char-19.png', name: 'Spectre', role: 'Fantome', color: '#64748b' },
 ];
 
 const GAME_CARDS = [
@@ -35,29 +58,73 @@ const FEATURES = [
   { badge: 'Beta', badgeColor: '#f59e0b', title: 'Tournois', desc: 'Tournois quotidiens avec prize pool. Inscriptions bientot ouvertes.', href: '/leaderboard' },
 ];
 
-const RECENT_BETS = [
-  { game: 'Pleine Lune', user: 'wolf_h***', time: '11:08', amount: 120, side: 'Loups', odds: '2.4x', payout: 288, won: true },
-  { game: 'Flappy Bird IA', user: 'cry***o', time: '11:07', amount: 50, side: 'Villageois', odds: '1.8x', payout: 90, won: true },
-  { game: 'Nuit Noire', user: 'bet_m***', time: '11:06', amount: 200, side: 'Loups', odds: '2.1x', payout: 0, won: false },
-  { game: 'Pleine Lune', user: 'stra***', time: '11:05', amount: 75, side: 'Villageois', odds: '1.6x', payout: 120, won: true },
-  { game: 'Village Maudit', user: 'nig***k', time: '11:04', amount: 300, side: 'Loups', odds: '3.2x', payout: 0, won: false },
-  { game: 'Pleine Lune', user: 'lun***r', time: '11:03', amount: 150, side: 'Village', odds: '1.9x', payout: 285, won: true },
-];
 
-/* ── Floating Character Card ── */
-function FloatingCard({ src, delay = 0 }) {
+/* ── Floating Character Card with glow ── */
+function FloatingCard({ src, delay = 0, index = 0 }) {
   return (
     <div
       className="floating-char"
       style={{
-        borderRadius: 10,
+        borderRadius: 12,
         overflow: 'hidden',
         opacity: 0,
-        animation: `floatIn 0.5s ease ${delay}s forwards`,
+        animation: `floatIn 0.6s ease ${delay}s forwards, subtlePulse 4s ease-in-out ${(index % 3) * 1.3}s infinite`,
+        position: 'relative',
       }}
     >
       <img src={src} alt="" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }} />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(180deg, transparent 60%, rgba(124,58,237,0.15) 100%)',
+        pointerEvents: 'none',
+      }} />
     </div>
+  );
+}
+
+/* ── Agent showcase card ── */
+function AgentCard({ agent, index }) {
+  return (
+    <a
+      href="/characters"
+      className="agent-card"
+      style={{
+        display: 'block',
+        borderRadius: 14,
+        overflow: 'hidden',
+        background: 'var(--bg-secondary)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        textDecoration: 'none',
+        transition: 'all 0.3s ease',
+        animation: `fadeUp 0.5s ease ${index * 0.05}s both`,
+        position: 'relative',
+      }}
+    >
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+        <img
+          src={agent.src} alt={agent.name} loading="lazy"
+          style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease' }}
+          className="agent-card-img"
+        />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)`,
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px',
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{agent.name}</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: agent.color }}>{agent.role}</div>
+        </div>
+        <div style={{
+          position: 'absolute', top: 8, right: 8,
+          width: 8, height: 8, borderRadius: '50%',
+          background: '#22c55e',
+          boxShadow: '0 0 6px #22c55e',
+        }} />
+      </div>
+    </a>
   );
 }
 
@@ -73,12 +140,12 @@ export default function HomePage() {
         <>
           <div className="char-column char-column-left">
             {LEFT_CHARS.map((src, i) => (
-              <FloatingCard key={src} src={src} delay={i * 0.08} />
+              <FloatingCard key={src} src={src} delay={i * 0.07} index={i} />
             ))}
           </div>
           <div className="char-column char-column-right">
             {RIGHT_CHARS.map((src, i) => (
-              <FloatingCard key={src} src={src} delay={i * 0.08 + 0.2} />
+              <FloatingCard key={src} src={src} delay={i * 0.07 + 0.15} index={i + 9} />
             ))}
           </div>
         </>
@@ -237,147 +304,103 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* ── Paris recents (Stake-style table) ── */}
+        {/* ── Les Agents IA — Showcase ── */}
         <div style={{ marginBottom: 48 }}>
-          {!isMobile && (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Paris recents</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer' }}>Top gains</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', cursor: 'pointer' }}>Classement</span>
-              </div>
-              <div style={{
-                borderRadius: 14, overflow: 'hidden',
-                border: '1px solid rgba(255,255,255,0.06)',
-                background: 'var(--bg-secondary)',
-              }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1.2fr 1fr 0.6fr 0.8fr 0.6fr 0.8fr',
-                  padding: '10px 20px',
-                  fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  textTransform: 'uppercase', letterSpacing: 0.5,
-                }}>
-                  <span>Partie</span><span>Joueur</span><span>Heure</span><span>Mise</span><span>Cote</span><span style={{ textAlign: 'right' }}>Gain</span>
-                </div>
-                {RECENT_BETS.map((bet, i) => (
-                  <div key={i} style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.2fr 1fr 0.6fr 0.8fr 0.6fr 0.8fr',
-                    padding: '12px 20px', fontSize: 13,
-                    borderBottom: i < RECENT_BETS.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none',
-                  }}>
-                    <span style={{ color: '#fff', fontWeight: 500 }}>{bet.game}</span>
-                    <span style={{ color: 'var(--text-muted)' }}>{bet.user}</span>
-                    <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontSize: 12 }}>{bet.time}</span>
-                    <span style={{ color: '#fff', fontFamily: 'var(--font-mono)' }}>{bet.amount} <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>W$</span></span>
-                    <span style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{bet.odds}</span>
-                    <span style={{
-                      textAlign: 'right', fontWeight: 600, fontFamily: 'var(--font-mono)',
-                      color: bet.won ? '#22c55e' : '#ef4444',
-                    }}>
-                      {bet.won ? `+${bet.payout}` : `-${bet.amount}`}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Mobile bets */}
-          {isMobile && (
-            <div style={{
-              borderRadius: 14, overflow: 'hidden',
-              border: '1px solid rgba(255,255,255,0.06)', background: 'var(--bg-secondary)',
-            }}>
-              <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Paris recents</span>
-                <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>LIVE</span>
-              </div>
-              {RECENT_BETS.slice(0, 4).map((bet, i) => (
-                <div key={i} style={{
-                  padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.03)' : 'none',
-                }}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{bet.game}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{bet.user} · {bet.side}</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-mono)', color: bet.won ? '#22c55e' : '#ef4444' }}>
-                      {bet.won ? `+${bet.payout}` : `-${bet.amount}`} W$
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{bet.odds}</div>
-                  </div>
-                </div>
-              ))}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Les Agents IA</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>13 personnalites uniques. Chacun joue differemment.</div>
             </div>
-          )}
-        </div>
-
-        {/* ── Character cards (mobile — horizontal scroll) ── */}
-        {isMobile && (
-          <div style={{ marginBottom: 40 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Les Agents IA</span>
-              <a href="/characters" style={{ fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none' }}>Voir tous →</a>
-            </div>
-            <div style={{
-              display: 'flex', gap: 10, overflowX: 'auto',
-              paddingBottom: 8, scrollSnapType: 'x mandatory',
-            }}>
-              {[...LEFT_CHARS, ...RIGHT_CHARS].slice(0, 8).map((src, i) => (
-                <div key={i} style={{
-                  minWidth: 100, borderRadius: 12, overflow: 'hidden',
-                  scrollSnapAlign: 'start', flexShrink: 0,
-                }}>
-                  <img src={src} alt="" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                </div>
-              ))}
-            </div>
+            <a href="/characters" style={{
+              fontSize: 12, color: '#a78bfa', textDecoration: 'none', fontWeight: 600,
+              padding: '6px 14px', borderRadius: 8,
+              background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.2)',
+              transition: 'all 0.2s',
+            }}>Voir tous →</a>
           </div>
-        )}
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(5, 1fr)',
+            gap: isMobile ? 8 : 12,
+          }}>
+            {AGENTS.slice(0, isMobile ? 6 : 10).map((agent, i) => (
+              <AgentCard key={agent.name} agent={agent} index={i} />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* ── Styles ── */}
       <style>{`
         @keyframes floatIn {
+          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          to { opacity: 0.35; transform: translateY(0) scale(1); }
+        }
+        @keyframes subtlePulse {
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.15); }
+        }
+        @keyframes fadeUp {
           from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 0.3; transform: translateY(0); }
+          to { opacity: 1; transform: translateY(0); }
         }
         .char-column {
           position: fixed;
           top: 56px;
           bottom: 0;
-          width: 150px;
+          width: 170px;
           display: flex;
           flex-direction: column;
           gap: 10px;
-          padding: 16px 12px;
+          padding: 16px 10px;
           overflow-y: auto;
           z-index: 1;
           pointer-events: none;
-          mask-image: linear-gradient(to bottom, transparent, black 30px, black calc(100% - 30px), transparent);
-          -webkit-mask-image: linear-gradient(to bottom, transparent, black 30px, black calc(100% - 30px), transparent);
+          mask-image: linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
+          -webkit-mask-image: linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
         }
         .char-column::-webkit-scrollbar { display: none; }
-        .char-column-left { left: 0; }
-        .char-column-right { right: 0; }
+        .char-column-left {
+          left: 0;
+          mask-image: linear-gradient(to right, black 70%, transparent), linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
+          -webkit-mask-image: linear-gradient(to right, black 70%, transparent), linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
+          mask-composite: intersect;
+          -webkit-mask-composite: source-in;
+        }
+        .char-column-right {
+          right: 0;
+          mask-image: linear-gradient(to left, black 70%, transparent), linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
+          -webkit-mask-image: linear-gradient(to left, black 70%, transparent), linear-gradient(to bottom, transparent, black 60px, black calc(100% - 60px), transparent);
+          mask-composite: intersect;
+          -webkit-mask-composite: source-in;
+        }
         .floating-char {
           pointer-events: auto;
-          transition: opacity 0.3s, transform 0.3s;
+          transition: opacity 0.4s, transform 0.4s, filter 0.4s;
           cursor: pointer;
         }
         .floating-char:hover {
-          opacity: 0.85 !important;
-          transform: scale(1.05) !important;
+          opacity: 0.9 !important;
+          transform: scale(1.08) translateY(-4px) !important;
+          filter: brightness(1.2) drop-shadow(0 0 12px rgba(124,58,237,0.4)) !important;
         }
-        @media (max-width: 1400px) {
-          .char-column { width: 120px; }
+        .agent-card {
+          cursor: pointer;
         }
-        @media (max-width: 1200px) {
-          .char-column { width: 100px; }
+        .agent-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(124,58,237,0.3) !important;
+          box-shadow: 0 8px 24px rgba(124,58,237,0.15);
+        }
+        .agent-card:hover .agent-card-img {
+          transform: scale(1.05);
+        }
+        @media (max-width: 1500px) {
+          .char-column { width: 140px; }
+        }
+        @media (max-width: 1300px) {
+          .char-column { width: 110px; }
         }
         @media (max-width: 1100px) {
           .char-column { display: none; }
