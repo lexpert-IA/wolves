@@ -40,7 +40,12 @@ async function ensureMongo() {
 
 // -- API routes
 app.use('/api', async (req, res, next) => {
-  await ensureMongo();
+  // Skip DB for health check
+  if (req.path === '/health') return next();
+  const ok = await ensureMongo();
+  if (!ok && dbState === 'failed') {
+    return res.status(503).json({ error: 'Base de donnees indisponible. Reessayez dans quelques secondes.' });
+  }
   next();
 });
 app.use('/api', apiRouter);

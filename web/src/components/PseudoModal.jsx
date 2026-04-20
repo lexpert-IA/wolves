@@ -13,6 +13,13 @@ function useDebounce(value, delay) {
   return d;
 }
 
+/* Fetch with 5s timeout */
+function fetchWithTimeout(url, opts = {}, ms = 5000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
 export default function PseudoModal() {
   const { login } = useAuth();
   const [username,  setUsername]  = useState('');
@@ -20,6 +27,7 @@ export default function PseudoModal() {
   const [checking,  setChecking]  = useState(false);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
+  const [dbDown,    setDbDown]    = useState(false);
   const inputRef = useRef(null);
 
   const debounced = useDebounce(username, 400);
@@ -28,14 +36,26 @@ export default function PseudoModal() {
     setTimeout(() => inputRef.current?.focus(), 100);
   }, []);
 
-  // Check availability
+  // Check availability — with 5s timeout
   useEffect(() => {
     if (debounced.length < 3) { setAvailable(null); return; }
     setChecking(true);
-    fetch(`${BASE}/api/auth/check?username=${encodeURIComponent(debounced)}`)
-      .then(r => r.json())
-      .then(d => { setAvailable(d.available); setError(d.available ? '' : 'Ce pseudo est déjà pris'); })
-      .catch(() => { setAvailable(true); setError(''); })
+    fetchWithTimeout(`${BASE}/api/auth/check?username=${encodeURIComponent(debounced)}`)
+      .then(r => {
+        if (r.status === 503) throw new Error('DB down');
+        return r.json();
+      })
+      .then(d => {
+        setAvailable(d.available);
+        setError(d.available ? '' : 'Ce pseudo est deja pris');
+        setDbDown(false);
+      })
+      .catch(() => {
+        // API down or timeout — allow submission anyway, backend register will validate
+        setAvailable(true);
+        setError('');
+        setDbDown(true);
+      })
       .finally(() => setChecking(false));
   }, [debounced]);
 
@@ -50,10 +70,10 @@ export default function PseudoModal() {
     setError('');
     try {
       const fbUser = auth.currentUser;
-      if (!fbUser) throw new Error('Session expirée. Reconnecte-toi.');
+      if (!fbUser) throw new Error('Session expiree. Reconnecte-toi.');
 
       const token = await fbUser.getIdToken();
-      const res   = await fetch(`${BASE}/api/auth/firebase-register`, {
+      const res   = await fetchWithTimeout(`${BASE}/api/auth/firebase-register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,12 +83,16 @@ export default function PseudoModal() {
           username: clean,
           refCode: localStorage.getItem('wolves_ref') || undefined,
         }),
-      });
+      }, 8000);
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Erreur'); return; }
       login(data);
     } catch (e) {
-      setError(e.message || 'Impossible de se connecter au serveur');
+      if (e.name === 'AbortError') {
+        setError('Serveur lent — reessaie dans quelques secondes');
+      } else {
+        setError(e.message || 'Impossible de se connecter au serveur');
+      }
     } finally {
       setLoading(false);
     }
@@ -95,9 +119,20 @@ export default function PseudoModal() {
               Choisis ton pseudo
             </p>
             <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>
-              Ton identité sur Wolves · impossible à changer plus tard
+              Ton identite sur Wolves
             </p>
           </div>
+
+          {/* DB warning */}
+          {dbDown && (
+            <div style={{
+              padding: '8px 12px', borderRadius: 8, marginBottom: 16,
+              background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
+              fontSize: 11, color: '#f59e0b', textAlign: 'center',
+            }}>
+              Serveur lent — l'inscription peut prendre quelques secondes
+            </div>
+          )}
 
           {/* Avatar preview */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
@@ -156,12 +191,12 @@ export default function PseudoModal() {
                 transition: 'all .2s',
               }}
             >
-              {loading ? '⟳ Création...' : 'Rejoindre Wolves'}
+              {loading ? '⟳ Creation...' : 'Rejoindre Wolves'}
             </button>
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 14, fontSize: 11, color: '#334155' }}>
-            Crée ton compte et commence à parier
+            Cree ton compte et commence a parier
           </p>
         </div>
       </div>
